@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kora — Clinical Intelligence Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .nav-item { display:flex; align-items:center; gap:0.75rem; padding:0.5rem 0.75rem; border-radius:0.5rem; font-size:0.875rem; font-weight:500; color:#9ca3af; cursor:pointer; transition:color 0.15s, background-color 0.15s; }
+    .nav-item:hover { color:#fff; background-color:#1f2937; }
+    .nav-item.active { color:#fff; background-color:#1f2937; }
+    .nav-item .badge { margin-left:auto; background:#0d9488; color:#fff; font-size:0.7rem; font-weight:600; padding:0.1rem 0.45rem; border-radius:9999px; }
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:2px; }
+    .timeline-line { position:absolute; left:7px; top:20px; width:2px; bottom:-12px; background:#e5e7eb; }
+    .tab-btn { padding:0.5rem 1rem; font-size:0.875rem; font-weight:500; color:#6b7280; border-bottom:2px solid transparent; cursor:pointer; white-space:nowrap; }
+    .tab-btn.active { color:#0d9488; border-bottom-color:#0d9488; }
+    .tab-btn:hover:not(.active) { color:#374151; }
+    .chip { display:inline-flex; align-items:center; padding:0.25rem 0.875rem; border-radius:9999px; font-size:0.8rem; font-weight:500; cursor:pointer; border:1px solid #e5e7eb; background:#fff; color:#6b7280; }
+    .chip.active { background:#0d9488; color:#fff; border-color:#0d9488; }
+    .chip:hover:not(.active) { background:#f3f4f6; }
+    tr.clickable:hover { background:#f9fafb; cursor:pointer; }
+    .status-ready { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.78rem; font-weight:500; color:#059669; background:#d1fae5; padding:0.2rem 0.6rem; border-radius:9999px; }
+    .status-syncing { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.78rem; font-weight:500; color:#d97706; background:#fef3c7; padding:0.2rem 0.6rem; border-radius:9999px; }
+    .status-incomplete { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.78rem; font-weight:500; color:#dc2626; background:#fee2e2; padding:0.2rem 0.6rem; border-radius:9999px; }
+    .status-connecting { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.78rem; font-weight:500; color:#6b7280; background:#f3f4f6; padding:0.2rem 0.6rem; border-radius:9999px; }
+    .checklist-item-expanded { border:1px solid #e5e7eb; border-radius:0.5rem; overflow:hidden; }
+    .evidence-pill { display:inline-flex; align-items:center; gap:0.25rem; background:#f0fdfa; border:1px solid #99f6e4; color:#0f766e; font-size:0.75rem; font-weight:500; padding:0.15rem 0.6rem; border-radius:9999px; cursor:pointer; }
+    .evidence-pill:hover { background:#ccfbf1; }
+    .source-dot-green { width:8px; height:8px; border-radius:9999px; background:#10b981; display:inline-block; flex-shrink:0; }
+    .source-dot-yellow { width:8px; height:8px; border-radius:9999px; background:#f59e0b; display:inline-block; flex-shrink:0; }
+    .source-dot-gray { width:8px; height:8px; border-radius:9999px; background:#9ca3af; display:inline-block; flex-shrink:0; }
+    .integration-card { background:#fff; border:1px solid #e5e7eb; border-radius:0.75rem; padding:1.25rem; }
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:50; display:flex; align-items:center; justify-content:center; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="w-60 bg-gray-900 flex flex-col flex-shrink-0">
+    <!-- Logo -->
+    <div class="px-5 py-5 border-b border-gray-800">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:#0d9488;">
+          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <span class="text-white font-semibold text-lg tracking-tight">Kora</span>
+        <span class="text-xs text-gray-500 font-medium mt-0.5">Health</span>
+      </div>
+    </div>
+    <!-- Nav -->
+    <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+      <div class="nav-item active" id="nav-dashboard" onclick="showScreen('dashboard')">
+        <svg class="w-4.5 h-4.5 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" id="nav-patients" onclick="showScreen('patients')">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Patients
+      </div>
+      <div class="nav-item" id="nav-queries" onclick="showScreen('placeholder')">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>
+        Queries
+        <span class="badge">3</span>
+      </div>
+      <div class="nav-item" id="nav-documents" onclick="showScreen('placeholder')">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Documents
+      </div>
+      <div class="nav-item" id="nav-checklists" onclick="showScreen('checklist-full')">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        Checklists
+      </div>
+      <div class="nav-item" id="nav-datasources" onclick="showScreen('datasources')">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="9" ry="3" stroke="currentColor" stroke-width="1.8" fill="none"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 5v14c0 1.657 4.03 3 9 3s9-1.343 9-3V5"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 12c0 1.657 4.03 3 9 3s9-1.343 9-3"/></svg>
+        Data Sources
+      </div>
+      <div class="nav-item" id="nav-settings" onclick="showScreen('placeholder')">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>
+        Settings
+      </div>
+    </nav>
+    <!-- User -->
+    <div class="px-3 py-4 border-t border-gray-800">
+      <div class="flex items-center gap-3 px-2 py-1.5">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#0d9488;">EA</div>
+        <div class="min-w-0">
+          <p class="text-white text-sm font-medium truncate">Dr. Ekene Ajufo</p>
+          <p class="text-gray-500 text-xs truncate">Admin</p>
+        </div>
+        <svg class="w-4 h-4 text-gray-600 ml-auto flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+    <!-- TOP BAR -->
+    <header class="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0 z-10">
+      <nav class="flex items-center gap-1.5 text-sm">
+        <span id="breadcrumb-root" class="text-gray-400 cursor-pointer hover:text-gray-600" onclick="showScreen('dashboard')">Kora</span>
+        <svg id="breadcrumb-sep" class="w-4 h-4 text-gray-300 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <span id="breadcrumb-page" class="text-gray-900 font-medium">Dashboard</span>
+        <svg id="breadcrumb-sep2" class="w-4 h-4 text-gray-300 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <span id="breadcrumb-sub" class="text-gray-900 font-medium hidden"></span>
+      </nav>
+      <div class="flex items-center gap-3">
+        <!-- Offline indicator -->
+        <div class="flex items-center gap-1.5 text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5">
+          <span class="source-dot-green"></span>
+          <span>Online · 24ms</span>
+        </div>
+        <!-- Language toggle -->
+        <div class="flex items-center gap-0.5">
+          <button class="px-2.5 py-1 text-xs font-semibold rounded-md" style="background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;">EN</button>
+          <button class="px-2.5 py-1 text-xs font-medium rounded-md text-gray-500 hover:bg-gray-100 border border-transparent">FR</button>
+          <button class="px-2.5 py-1 text-xs font-medium rounded-md text-gray-500 hover:bg-gray-100 border border-transparent">SW</button>
+          <button class="px-2.5 py-1 text-xs font-medium rounded-md text-gray-500 hover:bg-gray-100 border border-transparent">HA</button>
+        </div>
+        <!-- Notifications -->
+        <button class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 relative">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <span class="absolute top-1 right-1 w-2 h-2 rounded-full" style="background:#ef4444;"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- SCREENS -->
+    <main class="flex-1 overflow-auto bg-gray-50" id="screen-container">
+
+      <!-- ══════════════════════════════════════════
+           SCREEN 1: DASHBOARD
+      ══════════════════════════════════════════ -->
+      <div id="screen-dashboard" data-screen class="p-6 max-w-7xl mx-auto w-full">
+
+        <!-- Page header -->
+        <div class="mb-6">
+          <h1 class="text-xl font-semibold text-gray-900">Dashboard</h1>
+          <p class="text-sm text-gray-500 mt-0.5">Thursday, June 26, 2026 — Lagos General Network</p>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="grid grid-cols-4 gap-4 mb-6">
+          <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Patients</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1.5">1,284</p>
+                <p class="text-xs text-green-600 font-medium mt-1.5 flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                  +12 this week
+                </p>
+              </div>
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:#f0fdfa;">
+                <svg class="w-5 h-5" style="color:#0d9488;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Records Synced Today</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1.5">47</p>
+                <p class="text-xs text-gray-400 font-medium mt-1.5">Last sync: 4 min ago</p>
+              </div>
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:#eff6ff;">
+                <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Pending Queries</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1.5">3</p>
+                <p class="text-xs font-medium mt-1.5" style="color:#d97706;">Requires attention</p>
+              </div>
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:#fffbeb;">
+                <svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">AI Summaries Generated</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1.5">892</p>
+                <p class="text-xs text-green-600 font-medium mt-1.5 flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                  +34 today
+                </p>
+              </div>
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:#f5f3ff;">
+                <svg class="w-5 h-5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Patient Activity -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-6">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h2 class="font-semibold text-gray-900">Recent Patient Activity</h2>
+            <button class="text-sm font-medium hover:underline" style="color:#0d9488;" onclick="showScreen('patients')">View all patients →</button>
+          </div>
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-100">
+                <th class="text-left text-xs font-semibold text-gray-500 px-6 py-3 uppercase tracking-wide">Patient Name</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">Condition</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">Last Record Sync</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">Data Sources</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="clickable border-b border-gray-50" onclick="showScreen('patient-detail')">
+                <td class="px-6 py-3.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#0d9488;">AO</div>
+                    <span class="font-medium text-gray-900 text-sm">Amina Osei</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">Breast Cancer (Stage III)</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">2 hours ago</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">3 sources</td>
+                <td class="px-4 py-3.5"><span class="status-ready"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Summary Ready</span></td>
+              </tr>
+              <tr class="clickable border-b border-gray-50" onclick="showScreen('patient-detail')">
+                <td class="px-6 py-3.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#6366f1;">KM</div>
+                    <span class="font-medium text-gray-900 text-sm">Kwame Mensah</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">Type 2 Diabetes + HTN</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">Yesterday</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">2 sources</td>
+                <td class="px-4 py-3.5"><span class="status-syncing"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Syncing</span></td>
+              </tr>
+              <tr class="clickable border-b border-gray-50" onclick="showScreen('patient-detail')">
+                <td class="px-6 py-3.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#8b5cf6;">FD</div>
+                    <span class="font-medium text-gray-900 text-sm">Fatimata Diallo</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">HIV/AIDS on ART</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">3 days ago</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">1 source</td>
+                <td class="px-4 py-3.5"><span class="status-ready"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Summary Ready</span></td>
+              </tr>
+              <tr class="clickable border-b border-gray-50" onclick="showScreen('patient-detail')">
+                <td class="px-6 py-3.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#0891b2;">CN</div>
+                    <span class="font-medium text-gray-900 text-sm">Chukwuemeka Nwosu</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">Pulmonary TB</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">1 week ago</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">2 sources</td>
+                <td class="px-4 py-3.5"><span class="status-incomplete"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>Incomplete Records</span></td>
+              </tr>
+              <tr class="clickable" onclick="showScreen('patient-detail')">
+                <td class="px-6 py-3.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#d97706;">AB</div>
+                    <span class="font-medium text-gray-900 text-sm">Abena Boateng</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">Severe Malaria</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">2 weeks ago</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">1 source</td>
+                <td class="px-4 py-3.5"><span class="status-ready"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Summary Ready</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Data Source Health -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h2 class="font-semibold text-gray-900">Data Source Health</h2>
+            <button class="text-sm font-medium hover:underline" style="color:#0d9488;" onclick="showScreen('datasources')">Manage sources →</button>
+          </div>
+          <div class="p-4 grid grid-cols-4 gap-3">
+            <div class="border border-gray-200 rounded-lg p-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-gray-700">OpenMRS</span>
+                <span class="source-dot-green"></span>
+              </div>
+              <p class="text-xs text-gray-500 font-medium">Lagos General</p>
+              <p class="text-xs text-gray-400 mt-1">Last sync: 4 min ago</p>
+              <div class="mt-2 h-1 bg-gray-100 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:98%;background:#10b981;"></div></div>
+            </div>
+            <div class="border border-gray-200 rounded-lg p-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-gray-700">KenyaEMR</span>
+                <span class="source-dot-green"></span>
+              </div>
+              <p class="text-xs text-gray-500 font-medium">Nairobi National</p>
+              <p class="text-xs text-gray-400 mt-1">Last sync: 12 min ago</p>
+              <div class="mt-2 h-1 bg-gray-100 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:95%;background:#10b981;"></div></div>
+            </div>
+            <div class="border border-gray-200 rounded-lg p-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-gray-700">DHIS2</span>
+                <span class="source-dot-yellow"></span>
+              </div>
+              <p class="text-xs text-gray-500 font-medium">Ministry of Health</p>
+              <p class="text-xs text-gray-400 mt-1">Last sync: 1 hr ago</p>
+              <div class="mt-2 h-1 bg-gray-100 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:72%;background:#f59e0b;"></div></div>
+            </div>
+            <div class="border border-gray-200 rounded-lg p-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-gray-700">Bahmni</span>
+                <span class="source-dot-gray"></span>
+              </div>
+              <p class="text-xs text-gray-500 font-medium">Kigali Teaching</p>
+              <p class="text-xs text-gray-400 mt-1">Connecting...</p>
+              <div class="mt-2 h-1 bg-gray-100 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:30%;background:#9ca3af;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /screen-dashboard -->
+
+      <!-- ══════════════════════════════════════════
+           SCREEN 2: PATIENT REGISTRY
+      ══════════════════════════════════════════ -->
+      <div id="screen-patients" data-screen class="hidden p-6 max-w-7xl mx-auto w-full">
+        <div class="mb-5 flex items-center justify-between">
+          <div>
+            <h1 class="text-xl font-semibold text-gray-900">Patients</h1>
+            <p class="text-sm text-gray-500 mt-0.5">1,284 total patients across all sources</p>
+          </div>
+          <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm" style="background:#0d9488;">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            Add Patient
+          </button>
+        </div>
+        <!-- Search -->
+        <div class="relative mb-3">
+          <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>
+          <input type="text" placeholder="Search by name, ID, condition..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 shadow-sm" style="--tw-ring-color:#0d9488;" />
+        </div>
+        <!-- Filter chips -->
+        <div class="flex items-center gap-2 mb-5">
+          <span class="chip active" onclick="setChip(this)">All Patients</span>
+          <span class="chip" onclick="setChip(this)">Has AI Summary</span>
+          <span class="chip" onclick="setChip(this)">Pending Sync</span>
+          <span class="chip" onclick="setChip(this)">Incomplete Records</span>
+          <span class="chip" onclick="setChip(this)">High Complexity</span>
+        </div>
+        <!-- Table -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-100">
+                <th class="text-left text-xs font-semibold text-gray-500 px-5 py-3 uppercase tracking-wide">Patient ID</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">Name</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">Age / Sex</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">Primary Condition</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">Record Sources</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">Last Sync</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">AI Summary</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="clickable border-b border-gray-50">
+                <td class="px-5 py-3.5 mono text-xs text-gray-500">XC-00421</td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#0d9488;">AO</div><span class="font-medium text-sm text-gray-900">Amina Osei</span></div></td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">48 / F</td>
+                <td class="px-4 py-3.5 text-sm text-gray-700">Metastatic Breast Cancer</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">3 sources</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">2h ago</td>
+                <td class="px-4 py-3.5"><span class="status-ready"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Ready</span></td>
+                <td class="px-4 py-3.5"><button class="text-sm font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50" onclick="showScreen('patient-detail')">View</button></td>
+              </tr>
+              <tr class="clickable border-b border-gray-50">
+                <td class="px-5 py-3.5 mono text-xs text-gray-500">XC-00389</td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#6366f1;">KM</div><span class="font-medium text-sm text-gray-900">Kwame Mensah</span></div></td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">62 / M</td>
+                <td class="px-4 py-3.5 text-sm text-gray-700">Type 2 Diabetes + HTN</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">2 sources</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">Yesterday</td>
+                <td class="px-4 py-3.5"><span class="status-ready"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Ready</span></td>
+                <td class="px-4 py-3.5"><button class="text-sm font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50" onclick="showScreen('patient-detail')">View</button></td>
+              </tr>
+              <tr class="clickable border-b border-gray-50">
+                <td class="px-5 py-3.5 mono text-xs text-gray-500">XC-00512</td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#8b5cf6;">FD</div><span class="font-medium text-sm text-gray-900">Fatimata Diallo</span></div></td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">34 / F</td>
+                <td class="px-4 py-3.5 text-sm text-gray-700">HIV/AIDS on ART</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">1 source</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">3d ago</td>
+                <td class="px-4 py-3.5"><span class="status-ready"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Ready</span></td>
+                <td class="px-4 py-3.5"><button class="text-sm font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50" onclick="showScreen('patient-detail')">View</button></td>
+              </tr>
+              <tr class="clickable border-b border-gray-50">
+                <td class="px-5 py-3.5 mono text-xs text-gray-500">XC-00298</td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#0891b2;">CN</div><span class="font-medium text-sm text-gray-900">Chukwuemeka Nwosu</span></div></td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">29 / M</td>
+                <td class="px-4 py-3.5 text-sm text-gray-700">Pulmonary TB</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">2 sources</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">1wk ago</td>
+                <td class="px-4 py-3.5"><span class="status-incomplete"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>Incomplete</span></td>
+                <td class="px-4 py-3.5"><button class="text-sm font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50" onclick="showScreen('patient-detail')">View</button></td>
+              </tr>
+              <tr class="clickable border-b border-gray-50">
+                <td class="px-5 py-3.5 mono text-xs text-gray-500">XC-00601</td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#d97706;">AB</div><span class="font-medium text-sm text-gray-900">Abena Boateng</span></div></td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">7 / F</td>
+                <td class="px-4 py-3.5 text-sm text-gray-700">Severe Malaria</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">1 source</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">2wk ago</td>
+                <td class="px-4 py-3.5"><span class="status-ready"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Ready</span></td>
+                <td class="px-4 py-3.5"><button class="text-sm font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50" onclick="showScreen('patient-detail')">View</button></td>
+              </tr>
+              <tr class="clickable border-b border-gray-50">
+                <td class="px-5 py-3.5 mono text-xs text-gray-500">XC-00714</td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#be185d;">OA</div><span class="font-medium text-sm text-gray-900">Olu Adeyemi</span></div></td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">45 / M</td>
+                <td class="px-4 py-3.5 text-sm text-gray-700">Sickle Cell Disease</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">2 sources</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">5d ago</td>
+                <td class="px-4 py-3.5"><span class="status-ready"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Ready</span></td>
+                <td class="px-4 py-3.5"><button class="text-sm font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50" onclick="showScreen('patient-detail')">View</button></td>
+              </tr>
+              <tr class="clickable border-b border-gray-50">
+                <td class="px-5 py-3.5 mono text-xs text-gray-500">XC-00832</td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#059669;">AA</div><span class="font-medium text-sm text-gray-900">Adjoa Asante</span></div></td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">27 / F</td>
+                <td class="px-4 py-3.5 text-sm text-gray-700">Pre-eclampsia</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">1 source</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">Today</td>
+                <td class="px-4 py-3.5"><span class="status-syncing"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Syncing</span></td>
+                <td class="px-4 py-3.5"><button class="text-sm font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50" onclick="showScreen('patient-detail')">View</button></td>
+              </tr>
+              <tr class="clickable border-b border-gray-50">
+                <td class="px-5 py-3.5 mono text-xs text-gray-500">XC-00445</td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#7c3aed;">MK</div><span class="font-medium text-sm text-gray-900">Musa Kamara</span></div></td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">52 / M</td>
+                <td class="px-4 py-3.5 text-sm text-gray-700">CKD Stage 3</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">3 sources</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">3d ago</td>
+                <td class="px-4 py-3.5"><span class="status-ready"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Ready</span></td>
+                <td class="px-4 py-3.5"><button class="text-sm font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50" onclick="showScreen('patient-detail')">View</button></td>
+              </tr>
+              <tr class="clickable border-b border-gray-50">
+                <td class="px-5 py-3.5 mono text-xs text-gray-500">XC-00567</td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#b45309;">NE</div><span class="font-medium text-sm text-gray-900">Ngozi Eze</span></div></td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">38 / F</td>
+                <td class="px-4 py-3.5 text-sm text-gray-700">Cervical Cancer (Stage II)</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">2 sources</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">6d ago</td>
+                <td class="px-4 py-3.5"><span class="status-incomplete"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>Incomplete</span></td>
+                <td class="px-4 py-3.5"><button class="text-sm font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50" onclick="showScreen('patient-detail')">View</button></td>
+              </tr>
+              <tr class="clickable">
+                <td class="px-5 py-3.5 mono text-xs text-gray-500">XC-00903</td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#dc2626;">SB</div><span class="font-medium text-sm text-gray-900">Segun Balogun</span></div></td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">71 / M</td>
+                <td class="px-4 py-3.5 text-sm text-gray-700">Prostate Cancer</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">1 source</td>
+                <td class="px-4 py-3.5 text-sm text-gray-500">2d ago</td>
+                <td class="px-4 py-3.5"><span class="status-ready"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Ready</span></td>
+                <td class="px-4 py-3.5"><button class="text-sm font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50" onclick="showScreen('patient-detail')">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- Pagination -->
+          <div class="px-5 py-3.5 border-t border-gray-100 flex items-center justify-between">
+            <p class="text-sm text-gray-500">Showing <span class="font-medium text-gray-700">1–10</span> of <span class="font-medium text-gray-700">1,284</span> patients</p>
+            <div class="flex items-center gap-2">
+              <button class="px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg text-gray-400 cursor-not-allowed">← Prev</button>
+              <span class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white" style="background:#0d9488;">1</span>
+              <button class="px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">2</button>
+              <button class="px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">3</button>
+              <span class="text-gray-400 text-sm">...</span>
+              <button class="px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">Next →</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /screen-patients -->
+
+      <!-- Screens 3-5 and placeholder inserted below -->
+      <!-- ══════════════════════════════════════════
+           SCREEN 3: PATIENT DETAIL — Amina Osei
+      ══════════════════════════════════════════ -->
+      <div id="screen-patient-detail" data-screen class="hidden">
+        <!-- Patient header -->
+        <div class="bg-white border-b border-gray-200 px-6 py-5">
+          <div class="max-w-7xl mx-auto flex items-start justify-between gap-6">
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0" style="background:#0d9488;">AO</div>
+              <div>
+                <div class="flex items-center gap-3 flex-wrap">
+                  <h1 class="text-xl font-bold text-gray-900">Amina Osei</h1>
+                  <span class="mono text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">XC-00421</span>
+                </div>
+                <p class="text-sm text-gray-500 mt-0.5">DOB: June 29, 1971 (Age 54) · Female · Blood Type: O+</p>
+                <div class="flex items-center gap-2 mt-2 flex-wrap">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200">Metastatic Breast Cancer</span>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">On Active Treatment</span>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">High Complexity</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <button class="flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 bg-white shadow-sm">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Run Query
+              </button>
+              <button class="flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 bg-white shadow-sm">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                Generate Summary
+              </button>
+              <button class="flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold rounded-lg text-white shadow-sm" style="background:#0d9488;">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                Request Records
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two-column body -->
+        <div class="max-w-7xl mx-auto px-6 py-5 flex gap-5 items-start">
+
+          <!-- LEFT COLUMN (60%) -->
+          <div class="flex-1 min-w-0">
+            <!-- Tab bar -->
+            <div class="flex border-b border-gray-200 mb-5 overflow-x-auto">
+              <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+              <button class="tab-btn" data-tab="conditions" onclick="switchTab('conditions')">Conditions</button>
+              <button class="tab-btn" data-tab="medications" onclick="switchTab('medications')">Medications</button>
+              <button class="tab-btn" data-tab="labs" onclick="switchTab('labs')">Labs <span class="ml-1 text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">142</span></button>
+              <button class="tab-btn" data-tab="imaging" onclick="switchTab('imaging')">Imaging</button>
+              <button class="tab-btn" data-tab="procedures" onclick="switchTab('procedures')">Procedures</button>
+              <button class="tab-btn" data-tab="allergies" onclick="switchTab('allergies')">Allergies</button>
+              <button class="tab-btn" data-tab="encounters" onclick="switchTab('encounters')">Encounters</button>
+            </div>
+
+            <!-- OVERVIEW TAB -->
+            <div id="pd-tab-overview" class="pd-tab-content space-y-5">
+
+              <!-- AI Summary card -->
+              <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div class="border-l-4 pl-5 pr-5 py-4" style="border-color:#0d9488;">
+                  <div class="flex items-start justify-between mb-3">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4" style="color:#0d9488;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                        <span class="text-sm font-semibold text-gray-900">AI Summary</span>
+                        <span class="text-xs text-gray-400">· Generated June 26, 2026</span>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-0.5">Based on 847 documents across 3 sources</p>
+                    </div>
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                      High Confidence
+                    </span>
+                  </div>
+                  <div class="space-y-2.5 text-sm text-gray-700 leading-relaxed">
+                    <p>Amina Osei is a 54-year-old female with a diagnosis of metastatic breast cancer (ER+/PR+/HER2−) initially confirmed in March 2022 at Lagos General Hospital. Staging workup at that time revealed hepatic and osseous metastases. She completed 6 cycles of first-line letrozole + palbociclib from May–November 2022, with partial response documented by CT in December 2022.</p>
+                    <p>Current regimen as of March 2026: fulvestrant monotherapy following disease progression on CDK4/6 inhibitor therapy. Last ECOG performance status documented as 1 (March 2026). Bone-targeted therapy with zoledronic acid ongoing since July 2022. No documented febrile episodes or hospitalizations in the past 6 months.</p>
+                    <p>Notable comorbidities: hypertension (controlled on amlodipine 5mg), mild anemia (Hgb 10.2 g/dL, February 2026). No documented drug allergies. Prior surgical history: left modified radical mastectomy (April 2022). Next scheduled follow-up: July 2026 at Lagos General Oncology.</p>
+                  </div>
+                  <div class="mt-3 pt-3 border-t border-gray-100 flex items-center gap-3">
+                    <span class="text-xs text-gray-500">Source documents: <span class="font-medium text-gray-700">847</span></span>
+                    <span class="text-gray-300">·</span>
+                    <button class="text-xs font-medium hover:underline" style="color:#0d9488;">View Sources</button>
+                    <span class="text-gray-300">·</span>
+                    <button class="text-xs font-medium text-gray-500 hover:text-gray-700">Export PDF</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Clinical Timeline -->
+              <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+                <h3 class="font-semibold text-gray-900 mb-4">Clinical Timeline</h3>
+                <div class="space-y-0">
+                  <!-- Timeline items -->
+                  <div class="flex gap-4 relative pb-5">
+                    <div class="flex flex-col items-center flex-shrink-0">
+                      <div class="w-4 h-4 rounded-full border-2 mt-0.5 flex-shrink-0" style="background:#0d9488;border-color:#0d9488;"></div>
+                      <div class="w-0.5 flex-1 mt-1" style="background:#e5e7eb;min-height:28px;"></div>
+                    </div>
+                    <div class="pb-1">
+                      <p class="text-sm font-medium text-gray-900">Diagnosis confirmed — Metastatic Breast Cancer (ER+/PR+/HER2−)</p>
+                      <p class="text-xs text-gray-500 mt-0.5">March 2022 · Lagos General Hospital</p>
+                    </div>
+                  </div>
+                  <div class="flex gap-4 relative pb-5">
+                    <div class="flex flex-col items-center flex-shrink-0">
+                      <div class="w-4 h-4 rounded-full border-2 mt-0.5 flex-shrink-0" style="background:#6366f1;border-color:#6366f1;"></div>
+                      <div class="w-0.5 flex-1 mt-1" style="background:#e5e7eb;min-height:28px;"></div>
+                    </div>
+                    <div class="pb-1">
+                      <p class="text-sm font-medium text-gray-900">Left Modified Radical Mastectomy</p>
+                      <p class="text-xs text-gray-500 mt-0.5">April 2022 · Surgical Oncology, Lagos General</p>
+                    </div>
+                  </div>
+                  <div class="flex gap-4 relative pb-5">
+                    <div class="flex flex-col items-center flex-shrink-0">
+                      <div class="w-4 h-4 rounded-full border-2 mt-0.5 flex-shrink-0" style="background:#0d9488;border-color:#0d9488;"></div>
+                      <div class="w-0.5 flex-1 mt-1" style="background:#e5e7eb;min-height:28px;"></div>
+                    </div>
+                    <div class="pb-1">
+                      <p class="text-sm font-medium text-gray-900">Letrozole + Palbociclib initiated (6 cycles)</p>
+                      <p class="text-xs text-gray-500 mt-0.5">May 2022 · Oncology Pharmacy, Lagos General</p>
+                    </div>
+                  </div>
+                  <div class="flex gap-4 relative pb-5">
+                    <div class="flex flex-col items-center flex-shrink-0">
+                      <div class="w-4 h-4 rounded-full border-2 mt-0.5 flex-shrink-0" style="background:#10b981;border-color:#10b981;"></div>
+                      <div class="w-0.5 flex-1 mt-1" style="background:#e5e7eb;min-height:28px;"></div>
+                    </div>
+                    <div class="pb-1">
+                      <p class="text-sm font-medium text-gray-900">Partial response documented on CT scan</p>
+                      <p class="text-xs text-gray-500 mt-0.5">December 2022 · Radiology, Lagos General</p>
+                    </div>
+                  </div>
+                  <div class="flex gap-4 relative pb-5">
+                    <div class="flex flex-col items-center flex-shrink-0">
+                      <div class="w-4 h-4 rounded-full border-2 mt-0.5 flex-shrink-0" style="background:#ef4444;border-color:#ef4444;"></div>
+                      <div class="w-0.5 flex-1 mt-1" style="background:#e5e7eb;min-height:28px;"></div>
+                    </div>
+                    <div class="pb-1">
+                      <p class="text-sm font-medium text-gray-900">Disease progression on CDK4/6 inhibitor therapy</p>
+                      <p class="text-xs text-gray-500 mt-0.5">August 2024 · KenyaEMR Referral Note</p>
+                    </div>
+                  </div>
+                  <div class="flex gap-4 relative pb-5">
+                    <div class="flex flex-col items-center flex-shrink-0">
+                      <div class="w-4 h-4 rounded-full border-2 mt-0.5 flex-shrink-0" style="background:#f59e0b;border-color:#f59e0b;"></div>
+                      <div class="w-0.5 flex-1 mt-1" style="background:#e5e7eb;min-height:28px;"></div>
+                    </div>
+                    <div class="pb-1">
+                      <p class="text-sm font-medium text-gray-900">Switched to Fulvestrant monotherapy</p>
+                      <p class="text-xs text-gray-500 mt-0.5">January 2025 · Oncology Clinic, Lagos General</p>
+                    </div>
+                  </div>
+                  <div class="flex gap-4 relative">
+                    <div class="flex flex-col items-center flex-shrink-0">
+                      <div class="w-4 h-4 rounded-full border-2 mt-0.5 flex-shrink-0" style="background:#0d9488;border-color:#0d9488;"></div>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">Last follow-up · ECOG Performance Status: 1</p>
+                      <p class="text-xs text-gray-500 mt-0.5">March 2026 · Oncology Clinic, Lagos General</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div><!-- /overview tab -->
+
+            <!-- STUB TABS -->
+            <div id="pd-tab-conditions" class="pd-tab-content hidden">
+              <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center text-gray-400 text-sm">Conditions data loading from OpenMRS...</div>
+            </div>
+            <div id="pd-tab-medications" class="pd-tab-content hidden">
+              <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center text-gray-400 text-sm">Medications data loading from OpenMRS...</div>
+            </div>
+            <div id="pd-tab-labs" class="pd-tab-content hidden">
+              <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center text-gray-400 text-sm">142 lab results loading...</div>
+            </div>
+            <div id="pd-tab-imaging" class="pd-tab-content hidden">
+              <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center text-gray-400 text-sm">11 imaging studies loading...</div>
+            </div>
+            <div id="pd-tab-procedures" class="pd-tab-content hidden">
+              <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center text-gray-400 text-sm">Procedures loading...</div>
+            </div>
+            <div id="pd-tab-allergies" class="pd-tab-content hidden">
+              <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center text-gray-400 text-sm">No documented allergies found across all sources.</div>
+            </div>
+            <div id="pd-tab-encounters" class="pd-tab-content hidden">
+              <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center text-gray-400 text-sm">34 encounters loading...</div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN (40%) -->
+          <div class="w-80 flex-shrink-0 space-y-4">
+
+            <!-- Active Checklist card -->
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div class="px-4 py-3.5 border-b border-gray-100" style="background:#f0fdfa;">
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4" style="color:#0d9488;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                  <p class="text-sm font-semibold text-gray-900">CDK4/6 Re-challenge Protocol</p>
+                </div>
+                <p class="text-xs text-gray-500 mt-0.5">Evaluated June 26, 2026</p>
+              </div>
+              <div class="px-4 py-3 space-y-2.5">
+                <div class="flex items-start gap-2.5">
+                  <svg class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                  <div><p class="text-xs font-medium text-gray-800">ER+/PR+ receptor status confirmed</p><p class="text-xs text-gray-400">Path report · Mar 2022</p></div>
+                </div>
+                <div class="flex items-start gap-2.5">
+                  <svg class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                  <div><p class="text-xs font-medium text-gray-800">Prior CDK4/6 inhibitor documented</p><p class="text-xs text-gray-400">Pharmacy record · May 2022</p></div>
+                </div>
+                <div class="flex items-start gap-2.5">
+                  <svg class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                  <div><p class="text-xs font-medium text-gray-800">ECOG performance status ≤ 2</p><p class="text-xs text-gray-400">Clinic note · Mar 2026</p></div>
+                </div>
+                <div class="flex items-start gap-2.5">
+                  <svg class="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                  <div><p class="text-xs font-medium text-gray-800">Recent CBC within 30 days</p><p class="text-xs text-amber-600">Last CBC: Feb 2026 (31 days) — Borderline</p></div>
+                </div>
+                <div class="flex items-start gap-2.5">
+                  <svg class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-5a1 1 0 112 0v-4a1 1 0 10-2 0v4zm0 2a1 1 0 112 0 1 1 0 01-2 0z" clip-rule="evenodd"/></svg>
+                  <div><p class="text-xs font-medium text-gray-800">Hepatic function labs within 14 days</p><p class="text-xs text-red-500">None found in records</p></div>
+                </div>
+                <div class="flex items-start gap-2.5">
+                  <svg class="w-4 h-4 text-gray-300 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                  <div><p class="text-xs font-medium text-gray-800">Patient consent for re-challenge</p><p class="text-xs text-gray-400">Not found in available records</p></div>
+                </div>
+              </div>
+              <div class="px-4 py-3 border-t border-gray-100 bg-gray-50">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-xs text-gray-600"><span class="font-semibold text-gray-900">3 of 6</span> criteria met · <span class="text-amber-600 font-medium">2 need attention</span></p>
+                </div>
+                <button onclick="showScreen('checklist-full')" class="w-full py-2 text-sm font-semibold rounded-lg text-white" style="background:#0d9488;">Run Full Evaluation →</button>
+              </div>
+            </div>
+
+            <!-- Data Sources card -->
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+              <h3 class="text-sm font-semibold text-gray-900 mb-3">Connected Record Sources</h3>
+              <div class="space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="source-dot-green"></span>
+                    <div><p class="text-xs font-medium text-gray-800">OpenMRS · Lagos General</p><p class="text-xs text-gray-400">612 docs · 2h ago</p></div>
+                  </div>
+                  <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="source-dot-green"></span>
+                    <div><p class="text-xs font-medium text-gray-800">KenyaEMR · Referral Notes</p><p class="text-xs text-gray-400">198 docs · 4d ago</p></div>
+                  </div>
+                  <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="source-dot-green"></span>
+                    <div><p class="text-xs font-medium text-gray-800">Uploaded Documents</p><p class="text-xs text-gray-400">37 docs · Manual upload</p></div>
+                  </div>
+                  <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick stats card -->
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+              <h3 class="text-sm font-semibold text-gray-900 mb-3">Quick Stats</h3>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div class="bg-gray-50 rounded-lg p-3 text-center"><p class="text-xl font-bold text-gray-900">34</p><p class="text-xs text-gray-500 mt-0.5">Encounters</p></div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center"><p class="text-xl font-bold text-gray-900">3</p><p class="text-xs text-gray-500 mt-0.5">Active Meds</p></div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center"><p class="text-xl font-bold text-gray-900">7</p><p class="text-xs text-gray-500 mt-0.5">Conditions</p></div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center"><p class="text-xl font-bold text-gray-900">142</p><p class="text-xs text-gray-500 mt-0.5">Lab Results</p></div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center col-span-2"><p class="text-xl font-bold text-gray-900">11</p><p class="text-xs text-gray-500 mt-0.5">Imaging Studies</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /screen-patient-detail -->
+      <!-- ══════════════════════════════════════════
+           SCREEN 4: CHECKLIST FULL VIEW
+      ══════════════════════════════════════════ -->
+      <div id="screen-checklist-full" data-screen class="hidden p-6 max-w-4xl mx-auto w-full">
+
+        <!-- Back link -->
+        <button onclick="showScreen('patient-detail')" class="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-5">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          Back to Amina Osei
+        </button>
+
+        <!-- Header -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-5">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <svg class="w-5 h-5" style="color:#0d9488;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                <h1 class="text-lg font-bold text-gray-900">CDK4/6 Inhibitor Re-challenge Protocol</h1>
+              </div>
+              <p class="text-sm text-gray-500">Patient: <span class="font-medium text-gray-700">Amina Osei</span> (XC-00421) · Evaluated June 26, 2026 · Dr. Ekene Ajufo</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="text-center px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-xl font-bold text-gray-900">3<span class="text-gray-400 font-normal text-base">/6</span></p>
+                <p class="text-xs text-gray-500">criteria met</p>
+              </div>
+            </div>
+          </div>
+          <!-- Progress bar -->
+          <div class="mt-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs text-gray-500">Evaluation progress</span>
+              <span class="text-xs font-medium text-gray-700">3 confirmed · 1 borderline · 1 not met · 1 unknown</span>
+            </div>
+            <div class="h-2 bg-gray-100 rounded-full flex overflow-hidden">
+              <div class="h-full" style="width:50%;background:#10b981;"></div>
+              <div class="h-full" style="width:16.6%;background:#f59e0b;"></div>
+              <div class="h-full" style="width:16.6%;background:#ef4444;"></div>
+              <div class="h-full" style="width:16.8%;background:#d1d5db;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checklist items -->
+        <div class="space-y-3">
+
+          <!-- Item 1 — Confirmed (expanded) -->
+          <div class="checklist-item-expanded bg-white">
+            <div class="px-5 py-4 border-b border-gray-100">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                  <div>
+                    <p class="font-semibold text-gray-900 text-sm">ER+/PR+ hormone receptor status confirmed</p>
+                    <p class="text-xs text-gray-500 mt-0.5">Criteria 1 of 6 · Required for eligibility</p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200 flex-shrink-0">Confirmed</span>
+              </div>
+            </div>
+            <div class="px-5 py-4 space-y-3">
+              <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">AI Justification</p>
+                <p class="text-sm text-gray-700">Pathology report from March 2022 documents ER positivity at 95% and PR positivity at 40% by immunohistochemistry. HER2 status confirmed negative (IHC score 1+). This satisfies the hormone receptor positivity threshold required for CDK4/6 re-challenge eligibility.</p>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Supporting Evidence</p>
+                <div class="flex flex-wrap gap-2">
+                  <span class="evidence-pill"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Pathology Report · Mar 14, 2022 · Lagos General</span>
+                  <span class="evidence-pill"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Surgical Pathology Final · Apr 2, 2022</span>
+                </div>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Extracted Values</p>
+                <div class="bg-gray-50 rounded-lg px-3 py-2 inline-block">
+                  <p class="mono text-xs text-gray-700">ER: 95% positive (strong) · PR: 40% positive (moderate) · HER2: 1+ (negative)</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 pt-1">
+                <p class="text-xs text-gray-500">Is this assessment correct?</p>
+                <button class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">👍 Correct</button>
+                <button class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">👎 Incorrect</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2 — Confirmed (expanded) -->
+          <div class="checklist-item-expanded bg-white">
+            <div class="px-5 py-4 border-b border-gray-100">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                  <div>
+                    <p class="font-semibold text-gray-900 text-sm">Prior CDK4/6 inhibitor therapy documented</p>
+                    <p class="text-xs text-gray-500 mt-0.5">Criteria 2 of 6 · Required for re-challenge protocol</p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200 flex-shrink-0">Confirmed</span>
+              </div>
+            </div>
+            <div class="px-5 py-4 space-y-3">
+              <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">AI Justification</p>
+                <p class="text-sm text-gray-700">Pharmacy dispensing records from May 2022 through November 2022 confirm 6 complete cycles of palbociclib 125mg (CDK4/6 inhibitor) co-administered with letrozole. Progression on this regimen was documented in August 2024 by the referring oncologist at KenyaEMR. This satisfies the requirement for documented prior CDK4/6 exposure.</p>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Supporting Evidence</p>
+                <div class="flex flex-wrap gap-2">
+                  <span class="evidence-pill"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Pharmacy Dispensing Record · May 4, 2022</span>
+                  <span class="evidence-pill"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Oncology Note · Aug 12, 2024 · KenyaEMR</span>
+                </div>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Extracted Values</p>
+                <div class="bg-gray-50 rounded-lg px-3 py-2 inline-block">
+                  <p class="mono text-xs text-gray-700">Palbociclib 125mg · 6 cycles · May–Nov 2022 · Progression Aug 2024</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 pt-1">
+                <p class="text-xs text-gray-500">Is this assessment correct?</p>
+                <button class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">👍 Correct</button>
+                <button class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">👎 Incorrect</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 3 — Borderline (expanded) -->
+          <div class="checklist-item-expanded bg-white">
+            <div class="px-5 py-4 border-b border-gray-100" style="background:#fffbeb;">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                  <div>
+                    <p class="font-semibold text-gray-900 text-sm">Recent CBC within 30 days</p>
+                    <p class="text-xs text-gray-500 mt-0.5">Criteria 4 of 6 · Must be within 30 days of evaluation</p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 flex-shrink-0">Borderline</span>
+              </div>
+            </div>
+            <div class="px-5 py-4 space-y-3">
+              <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">AI Justification</p>
+                <p class="text-sm text-gray-700">The most recent complete blood count available in any connected source is dated February 24, 2026 — 31 days before today's evaluation date. This falls 1 day outside the 30-day window specified by the protocol. Clinician discretion is recommended; ordering a repeat CBC would resolve this criteria definitively.</p>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Supporting Evidence</p>
+                <div class="flex flex-wrap gap-2">
+                  <span class="evidence-pill"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Lab Result · Feb 24, 2026 · OpenMRS</span>
+                </div>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Extracted Values</p>
+                <div class="bg-amber-50 rounded-lg px-3 py-2 inline-block border border-amber-200">
+                  <p class="mono text-xs" style="color:#92400e;">Hgb 10.2 g/dL · WBC 5.4 × 10⁹/L · PLT 198 × 10⁹/L · Feb 24, 2026 (31d ago)</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 pt-1">
+                <p class="text-xs text-gray-500">Is this assessment correct?</p>
+                <button class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">👍 Correct</button>
+                <button class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">👎 Incorrect</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 4 — Collapsed -->
+          <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleChecklistItem(4)" class="w-full px-5 py-4 flex items-center justify-between text-left">
+              <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                <div class="text-left"><p class="font-semibold text-gray-900 text-sm">ECOG performance status ≤ 2</p><p class="text-xs text-gray-500 mt-0.5">Criteria 3 of 6</p></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200">Confirmed</span>
+                <svg id="cl-icon-4" class="w-4 h-4 text-gray-400 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+            </button>
+            <div id="cl-body-4" class="hidden px-5 pb-4 border-t border-gray-100 pt-3">
+              <p class="text-sm text-gray-700 mb-2">Clinic note from March 2026 documents ECOG performance status of 1, confirmed by the treating oncologist. Patient is fully active and capable of all self-care.</p>
+              <span class="evidence-pill"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Oncology Clinic Note · Mar 18, 2026</span>
+            </div>
+          </div>
+
+          <!-- Item 5 — Not Met (collapsed) -->
+          <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleChecklistItem(5)" class="w-full px-5 py-4 flex items-center justify-between text-left">
+              <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-red-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-5a1 1 0 112 0v-4a1 1 0 10-2 0v4zm0 2a1 1 0 112 0 1 1 0 01-2 0z" clip-rule="evenodd"/></svg>
+                <div class="text-left"><p class="font-semibold text-gray-900 text-sm">Hepatic function labs within 14 days</p><p class="text-xs text-gray-500 mt-0.5">Criteria 5 of 6</p></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">Not Met</span>
+                <svg id="cl-icon-5" class="w-4 h-4 text-gray-400 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+            </button>
+            <div id="cl-body-5" class="hidden px-5 pb-4 border-t border-gray-100 pt-3">
+              <p class="text-sm text-gray-700">No LFT panel (ALT, AST, bilirubin, ALP) found within the 14-day window across any connected source. Most recent hepatic panel was from September 2025. This must be ordered before eligibility can be confirmed. Recommend ordering LFTs as part of next clinical encounter.</p>
+            </div>
+          </div>
+
+          <!-- Item 6 — Unknown (collapsed) -->
+          <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleChecklistItem(6)" class="w-full px-5 py-4 flex items-center justify-between text-left">
+              <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-gray-300 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                <div class="text-left"><p class="font-semibold text-gray-900 text-sm">Patient consent for re-challenge documented</p><p class="text-xs text-gray-500 mt-0.5">Criteria 6 of 6</p></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-600 border border-gray-200">Not Found</span>
+                <svg id="cl-icon-6" class="w-4 h-4 text-gray-400 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+            </button>
+            <div id="cl-body-6" class="hidden px-5 pb-4 border-t border-gray-100 pt-3">
+              <p class="text-sm text-gray-700">No signed informed consent document for CDK4/6 inhibitor re-challenge was found across any of the 3 connected record sources. A prior general oncology consent (April 2022) is on file but does not reference re-challenge therapy. Patient consent must be obtained and documented before treatment initiation.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action bar -->
+        <div class="mt-6 flex items-center justify-between bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-4">
+          <button class="flex items-center gap-2 text-sm font-medium px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Re-run Evaluation
+          </button>
+          <div class="flex items-center gap-2">
+            <button class="flex items-center gap-2 text-sm font-medium px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Export PDF
+            </button>
+            <button class="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg text-white" style="background:#0d9488;">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Submit to EHR
+            </button>
+          </div>
+        </div>
+      </div><!-- /screen-checklist-full -->
+      <!-- ══════════════════════════════════════════
+           SCREEN 5: DATA SOURCES
+      ══════════════════════════════════════════ -->
+      <div id="screen-datasources" data-screen class="hidden p-6 max-w-7xl mx-auto w-full">
+
+        <div class="mb-6 flex items-center justify-between">
+          <div>
+            <h1 class="text-xl font-semibold text-gray-900">Data Sources</h1>
+            <p class="text-sm text-gray-500 mt-0.5">Manage connected EMR systems and health information exchanges</p>
+          </div>
+          <button onclick="openModal()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm" style="background:#0d9488;">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            Add Integration
+          </button>
+        </div>
+
+        <!-- Integration cards grid -->
+        <div class="grid grid-cols-3 gap-4 mb-8">
+
+          <!-- OpenMRS -->
+          <div class="integration-card">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0 border border-blue-100">
+                  <span class="text-blue-600 font-bold text-xs mono">OM</span>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-900 text-sm">OpenMRS</p>
+                  <p class="text-xs text-gray-500">Lagos General Hospital</p>
+                </div>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                <span class="source-dot-green"></span>Connected
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div class="bg-gray-50 rounded-lg p-2.5 text-center"><p class="font-bold text-gray-900">847</p><p class="text-xs text-gray-500">patients</p></div>
+              <div class="bg-gray-50 rounded-lg p-2.5 text-center"><p class="font-bold text-gray-900">24,391</p><p class="text-xs text-gray-500">documents</p></div>
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+              <span>Last sync: <span class="font-medium text-gray-700">4 min ago</span></span>
+              <span class="text-green-600 font-medium">99.8% uptime</span>
+            </div>
+            <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-3"><div class="h-full rounded-full" style="width:98%;background:#10b981;"></div></div>
+            <button class="w-full py-1.5 text-xs font-medium border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">Configure</button>
+          </div>
+
+          <!-- KenyaEMR -->
+          <div class="integration-card">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0 border border-green-100">
+                  <span class="text-green-700 font-bold text-xs mono">KE</span>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-900 text-sm">KenyaEMR</p>
+                  <p class="text-xs text-gray-500">Nairobi National Hospital</p>
+                </div>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                <span class="source-dot-green"></span>Connected
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div class="bg-gray-50 rounded-lg p-2.5 text-center"><p class="font-bold text-gray-900">312</p><p class="text-xs text-gray-500">patients</p></div>
+              <div class="bg-gray-50 rounded-lg p-2.5 text-center"><p class="font-bold text-gray-900">9,842</p><p class="text-xs text-gray-500">documents</p></div>
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+              <span>Last sync: <span class="font-medium text-gray-700">12 min ago</span></span>
+              <span class="text-green-600 font-medium">98.2% uptime</span>
+            </div>
+            <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-3"><div class="h-full rounded-full" style="width:95%;background:#10b981;"></div></div>
+            <button class="w-full py-1.5 text-xs font-medium border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">Configure</button>
+          </div>
+
+          <!-- DHIS2 -->
+          <div class="integration-card">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0 border border-amber-100">
+                  <span class="text-amber-700 font-bold text-xs mono">D2</span>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-900 text-sm">DHIS2</p>
+                  <p class="text-xs text-gray-500">Ministry of Health</p>
+                </div>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                <span class="source-dot-yellow"></span>Degraded
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div class="bg-gray-50 rounded-lg p-2.5 text-center"><p class="font-bold text-gray-900">89</p><p class="text-xs text-gray-500">patients</p></div>
+              <div class="bg-gray-50 rounded-lg p-2.5 text-center"><p class="font-bold text-gray-900">4,210</p><p class="text-xs text-gray-500">documents</p></div>
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+              <span>Last sync: <span class="font-medium text-gray-700">1 hr ago</span></span>
+              <span class="text-amber-600 font-medium">81.4% uptime</span>
+            </div>
+            <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-3"><div class="h-full rounded-full" style="width:72%;background:#f59e0b;"></div></div>
+            <button class="w-full py-1.5 text-xs font-medium border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">Configure</button>
+          </div>
+
+          <!-- Bahmni -->
+          <div class="integration-card">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0 border border-purple-100">
+                  <span class="text-purple-700 font-bold text-xs mono">BH</span>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-900 text-sm">Bahmni</p>
+                  <p class="text-xs text-gray-500">Kigali Teaching Hospital</p>
+                </div>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                <span class="source-dot-gray"></span>Connecting
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div class="bg-gray-50 rounded-lg p-2.5 text-center"><p class="font-bold text-gray-400">—</p><p class="text-xs text-gray-500">patients</p></div>
+              <div class="bg-gray-50 rounded-lg p-2.5 text-center"><p class="font-bold text-gray-400">—</p><p class="text-xs text-gray-500">documents</p></div>
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+              <span>Establishing connection...</span>
+              <span class="text-gray-400">—</span>
+            </div>
+            <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-3"><div class="h-full rounded-full" style="width:30%;background:#9ca3af;" class="animate-pulse"></div></div>
+            <button class="w-full py-1.5 text-xs font-medium border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">Configure</button>
+          </div>
+
+          <!-- Custom FHIR -->
+          <div class="integration-card">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center flex-shrink-0 border border-rose-100">
+                  <span class="text-rose-700 font-bold text-xs mono">R4</span>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-900 text-sm">HL7 FHIR R4</p>
+                  <p class="text-xs text-gray-500">Accra Teaching Hospital</p>
+                </div>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                <span class="source-dot-green"></span>Connected
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div class="bg-gray-50 rounded-lg p-2.5 text-center"><p class="font-bold text-gray-900">36</p><p class="text-xs text-gray-500">patients</p></div>
+              <div class="bg-gray-50 rounded-lg p-2.5 text-center"><p class="font-bold text-gray-900">1,104</p><p class="text-xs text-gray-500">documents</p></div>
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+              <span>Last sync: <span class="font-medium text-gray-700">3 hr ago</span></span>
+              <span class="text-green-600 font-medium">97.1% uptime</span>
+            </div>
+            <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-3"><div class="h-full rounded-full" style="width:88%;background:#10b981;"></div></div>
+            <button class="w-full py-1.5 text-xs font-medium border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">Configure</button>
+          </div>
+
+          <!-- Add new -->
+          <div class="integration-card border-dashed border-2 border-gray-200 flex flex-col items-center justify-center py-10 cursor-pointer hover:border-teal-300 hover:bg-teal-50 transition-colors" onclick="openModal()">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style="background:#f0fdfa;">
+              <svg class="w-5 h-5" style="color:#0d9488;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            </div>
+            <p class="text-sm font-semibold text-gray-700">Add Integration</p>
+            <p class="text-xs text-gray-400 mt-1 text-center">OpenMRS, KenyaEMR, DHIS2,<br>Bahmni, FHIR R4, Custom API</p>
+          </div>
+        </div>
+
+        <!-- Health Exchange Network -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+          <div class="px-6 py-4 border-b border-gray-100">
+            <h2 class="font-semibold text-gray-900">Health Exchange Network</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Regional health information exchange connections (Carequality / TEFCA equivalent)</p>
+          </div>
+          <div class="p-4 grid grid-cols-3 gap-4">
+            <div class="border border-gray-200 rounded-xl p-4">
+              <div class="flex items-center justify-between mb-2">
+                <div>
+                  <p class="text-sm font-semibold text-gray-900">Rwanda RHIES</p>
+                  <p class="text-xs text-gray-500">Rwanda Health Information Exchange</p>
+                </div>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200"><span class="source-dot-green"></span>Active</span>
+              </div>
+              <p class="text-xs text-gray-400">Participating facilities: <span class="font-medium text-gray-600">14</span></p>
+              <p class="text-xs text-gray-400">Records accessible: <span class="font-medium text-gray-600">4,211</span></p>
+            </div>
+            <div class="border border-gray-200 rounded-xl p-4">
+              <div class="flex items-center justify-between mb-2">
+                <div>
+                  <p class="text-sm font-semibold text-gray-900">Nigeria NHMIS</p>
+                  <p class="text-xs text-gray-500">National Health Mgmt. Info System</p>
+                </div>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200"><span class="source-dot-yellow"></span>Pending</span>
+              </div>
+              <p class="text-xs text-gray-400">Awaiting FMOH approval · Submitted Apr 2026</p>
+              <p class="text-xs text-gray-400 mt-1">Est. activation: <span class="font-medium text-gray-600">Q3 2026</span></p>
+            </div>
+            <div class="border border-gray-200 rounded-xl p-4">
+              <div class="flex items-center justify-between mb-2">
+                <div>
+                  <p class="text-sm font-semibold text-gray-900">Kenya HIE</p>
+                  <p class="text-xs text-gray-500">Kenya Health Information Exchange</p>
+                </div>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200"><span class="source-dot-green"></span>Active</span>
+              </div>
+              <p class="text-xs text-gray-400">Participating facilities: <span class="font-medium text-gray-600">31</span></p>
+              <p class="text-xs text-gray-400">Records accessible: <span class="font-medium text-gray-600">18,044</span></p>
+            </div>
+          </div>
+        </div>
+      </div><!-- /screen-datasources -->
+      <div id="screen-placeholder" data-screen class="hidden flex items-center justify-center min-h-full">
+        <div class="text-center py-24">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4" style="background:#f0fdfa;">
+            <svg class="w-7 h-7" style="color:#0d9488;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          </div>
+          <h3 class="font-semibold text-gray-900 mb-1">Coming Soon</h3>
+          <p class="text-sm text-gray-500">This section is under active development.</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ADD INTEGRATION MODAL -->
+<div id="modal-integration" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4" onclick="event.stopPropagation()">
+    <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+      <h3 class="font-semibold text-gray-900">Add Data Source Integration</h3>
+      <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Integration Type</label>
+        <select class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2" style="--tw-ring-color:#0d9488;">
+          <option>OpenMRS</option><option>KenyaEMR</option><option>DHIS2</option><option>Bahmni</option><option>HL7 FHIR R4</option><option>Custom API</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Base URL</label>
+        <input type="url" placeholder="https://emr.hospital.org/openmrs" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2" style="--tw-ring-color:#0d9488;" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Authentication Method</label>
+        <div class="flex gap-3">
+          <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="auth" checked class="accent-teal-600" /><span class="text-sm text-gray-700">API Key</span></label>
+          <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="auth" class="accent-teal-600" /><span class="text-sm text-gray-700">OAuth 2.0</span></label>
+          <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="auth" class="accent-teal-600" /><span class="text-sm text-gray-700">Basic Auth</span></label>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">API Key</label>
+        <input type="password" placeholder="••••••••••••••••" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2" style="--tw-ring-color:#0d9488;" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Assign to Project / Site</label>
+        <select class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2" style="--tw-ring-color:#0d9488;">
+          <option>Lagos General Hospital</option><option>Nairobi National Hospital</option><option>Accra Teaching Hospital</option><option>Ministry of Health (National)</option>
+        </select>
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+      <button class="flex items-center gap-2 text-sm font-medium px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Test Connection
+      </button>
+      <div class="flex gap-2">
+        <button onclick="closeModal()" class="px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>
+        <button class="px-4 py-2 text-sm font-semibold rounded-lg text-white" style="background:#0d9488;">Add Integration</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Navigation ──
+const breadcrumbLabels = {
+  dashboard: ['Dashboard', null],
+  patients: ['Patients', null],
+  'patient-detail': ['Patients', 'Amina Osei'],
+  'checklist-full': ['Patients', 'Checklist Evaluation'],
+  datasources: ['Data Sources', null],
+  placeholder: ['Coming Soon', null],
+};
+const navIds = {
+  dashboard: 'nav-dashboard',
+  patients: 'nav-patients',
+  'patient-detail': 'nav-patients',
+  'checklist-full': 'nav-checklists',
+  datasources: 'nav-datasources',
+  placeholder: null,
+};
+
+function showScreen(id) {
+  document.querySelectorAll('[data-screen]').forEach(el => el.classList.add('hidden'));
+  const target = document.getElementById('screen-' + id);
+  if (target) target.classList.remove('hidden');
+
+  // breadcrumb
+  const [page, sub] = breadcrumbLabels[id] || [id, null];
+  document.getElementById('breadcrumb-page').textContent = page;
+  const sepEl = document.getElementById('breadcrumb-sep');
+  const sep2El = document.getElementById('breadcrumb-sep2');
+  const subEl = document.getElementById('breadcrumb-sub');
+  if (sub) {
+    sepEl.classList.remove('hidden');
+    sep2El.classList.remove('hidden');
+    subEl.classList.remove('hidden');
+    subEl.textContent = sub;
+    document.getElementById('breadcrumb-page').textContent = page;
+  } else {
+    sepEl.classList.add('hidden');
+    sep2El.classList.add('hidden');
+    subEl.classList.add('hidden');
+  }
+
+  // nav active
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navId = navIds[id];
+  if (navId) document.getElementById(navId).classList.add('active');
+
+  // scroll to top
+  document.getElementById('screen-container').scrollTop = 0;
+}
+
+// ── Filter chips ──
+function setChip(el) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── Modal ──
+function openModal() { document.getElementById('modal-integration').classList.remove('hidden'); }
+function closeModal() { document.getElementById('modal-integration').classList.add('hidden'); }
+
+// ── Patient Detail Tabs ──
+function switchTab(tabId) {
+  document.querySelectorAll('.pd-tab-content').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  const content = document.getElementById('pd-tab-' + tabId);
+  if (content) content.classList.remove('hidden');
+  document.querySelectorAll('[data-tab="' + tabId + '"]').forEach(el => el.classList.add('active'));
+}
+
+// ── Checklist toggle ──
+function toggleChecklistItem(id) {
+  const body = document.getElementById('cl-body-' + id);
+  const icon = document.getElementById('cl-icon-' + id);
+  if (body.classList.contains('hidden')) {
+    body.classList.remove('hidden');
+    icon.style.transform = 'rotate(180deg)';
+  } else {
+    body.classList.add('hidden');
+    icon.style.transform = 'rotate(0deg)';
+  }
+}
+</script>
+</body>
+</html>
