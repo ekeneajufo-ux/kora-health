@@ -50,6 +50,14 @@
     .source-dot-gray { width:8px; height:8px; border-radius:9999px; background:#9ca3af; display:inline-block; flex-shrink:0; }
     .integration-card { background:#fff; border:1px solid #e5e7eb; border-radius:0.75rem; padding:1.25rem; }
     .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:50; display:flex; align-items:center; justify-content:center; }
+    .lang-btn { padding:0.25rem 0.625rem; font-size:0.75rem; font-weight:500; border-radius:0.375rem; border:1px solid transparent; cursor:pointer; transition:all 0.15s; color:#6b7280; background:transparent; }
+    .lang-btn:hover { background:#f3f4f6; color:#374151; }
+    .lang-btn.lang-active { background:#f0fdfa; color:#0f766e; border-color:#99f6e4; font-weight:600; }
+    .query-card { background:#fff; border:1px solid #e5e7eb; border-radius:0.75rem; padding:1.25rem; transition:box-shadow 0.15s; }
+    .query-card:hover { box-shadow:0 4px 12px rgba(0,0,0,0.06); }
+    .doc-row:hover { background:#f9fafb; }
+    @keyframes typing { 0%,100%{opacity:1} 50%{opacity:0} }
+    .cursor-blink { display:inline-block; width:2px; height:1em; background:#0d9488; margin-left:2px; vertical-align:middle; animation:typing 1s infinite; }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased">
@@ -71,33 +79,33 @@
     <!-- Nav -->
     <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
       <div class="nav-item active" id="nav-dashboard" onclick="showScreen('dashboard')">
-        <svg class="w-4.5 h-4.5 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>
-        Dashboard
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>
+        <span data-i18n="nav.dashboard">Dashboard</span>
       </div>
       <div class="nav-item" id="nav-patients" onclick="showScreen('patients')">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        Patients
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span data-i18n="nav.patients">Patients</span>
       </div>
-      <div class="nav-item" id="nav-queries" onclick="showScreen('placeholder')">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>
-        Queries
+      <div class="nav-item" id="nav-queries" onclick="showScreen('queries')">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>
+        <span data-i18n="nav.queries">Queries</span>
         <span class="badge">3</span>
       </div>
-      <div class="nav-item" id="nav-documents" onclick="showScreen('placeholder')">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        Documents
+      <div class="nav-item" id="nav-documents" onclick="showScreen('documents')">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <span data-i18n="nav.documents">Documents</span>
       </div>
       <div class="nav-item" id="nav-checklists" onclick="showScreen('checklist-full')">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-        Checklists
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        <span data-i18n="nav.checklists">Checklists</span>
       </div>
       <div class="nav-item" id="nav-datasources" onclick="showScreen('datasources')">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="9" ry="3" stroke="currentColor" stroke-width="1.8" fill="none"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 5v14c0 1.657 4.03 3 9 3s9-1.343 9-3V5"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 12c0 1.657 4.03 3 9 3s9-1.343 9-3"/></svg>
-        Data Sources
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="9" ry="3" stroke="currentColor" stroke-width="1.8" fill="none"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 5v14c0 1.657 4.03 3 9 3s9-1.343 9-3V5"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 12c0 1.657 4.03 3 9 3s9-1.343 9-3"/></svg>
+        <span data-i18n="nav.datasources">Data Sources</span>
       </div>
       <div class="nav-item" id="nav-settings" onclick="showScreen('placeholder')">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>
-        Settings
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>
+        <span data-i18n="nav.settings">Settings</span>
       </div>
     </nav>
     <!-- User -->
@@ -133,10 +141,10 @@
         </div>
         <!-- Language toggle -->
         <div class="flex items-center gap-0.5">
-          <button class="px-2.5 py-1 text-xs font-semibold rounded-md" style="background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;">EN</button>
-          <button class="px-2.5 py-1 text-xs font-medium rounded-md text-gray-500 hover:bg-gray-100 border border-transparent">FR</button>
-          <button class="px-2.5 py-1 text-xs font-medium rounded-md text-gray-500 hover:bg-gray-100 border border-transparent">SW</button>
-          <button class="px-2.5 py-1 text-xs font-medium rounded-md text-gray-500 hover:bg-gray-100 border border-transparent">HA</button>
+          <button onclick="setLanguage('en')" data-lang="en" class="lang-btn lang-active">EN</button>
+          <button onclick="setLanguage('yo')" data-lang="yo" class="lang-btn">YO</button>
+          <button onclick="setLanguage('sw')" data-lang="sw" class="lang-btn">SW</button>
+          <button onclick="setLanguage('ha')" data-lang="ha" class="lang-btn">HA</button>
         </div>
         <!-- Demo button -->
         <button onclick="demoStart()" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold text-white shadow-sm transition-all hover:opacity-90" style="background:linear-gradient(135deg,#0d9488,#0891b2);">
@@ -161,8 +169,8 @@
 
         <!-- Page header -->
         <div class="mb-6">
-          <h1 class="text-xl font-semibold text-gray-900">Dashboard</h1>
-          <p class="text-sm text-gray-500 mt-0.5">Thursday, June 26, 2026 — Lagos General Network</p>
+          <h1 class="text-xl font-semibold text-gray-900" data-i18n="dash.title">Dashboard</h1>
+          <p class="text-sm text-gray-500 mt-0.5" data-i18n="dash.subtitle">Thursday, June 26, 2026 — Lagos General Network</p>
         </div>
 
         <!-- Stat cards -->
@@ -170,11 +178,11 @@
           <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
             <div class="flex items-start justify-between">
               <div>
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Patients</p>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide" data-i18n="stat.total_patients">Total Patients</p>
                 <p class="text-3xl font-bold text-gray-900 mt-1.5">1,284</p>
                 <p class="text-xs text-green-600 font-medium mt-1.5 flex items-center gap-1">
                   <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-                  +12 this week
+                  <span data-i18n="stat.week">+12 this week</span>
                 </p>
               </div>
               <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:#f0fdfa;">
@@ -185,9 +193,9 @@
           <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
             <div class="flex items-start justify-between">
               <div>
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Records Synced Today</p>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide" data-i18n="stat.synced_today">Records Synced Today</p>
                 <p class="text-3xl font-bold text-gray-900 mt-1.5">47</p>
-                <p class="text-xs text-gray-400 font-medium mt-1.5">Last sync: 4 min ago</p>
+                <p class="text-xs text-gray-400 font-medium mt-1.5" data-i18n="stat.last_sync">Last sync: 4 min ago</p>
               </div>
               <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:#eff6ff;">
                 <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
@@ -197,9 +205,9 @@
           <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
             <div class="flex items-start justify-between">
               <div>
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Pending Queries</p>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide" data-i18n="stat.pending_queries">Pending Queries</p>
                 <p class="text-3xl font-bold text-gray-900 mt-1.5">3</p>
-                <p class="text-xs font-medium mt-1.5" style="color:#d97706;">Requires attention</p>
+                <p class="text-xs font-medium mt-1.5" style="color:#d97706;" data-i18n="stat.requires">Requires attention</p>
               </div>
               <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:#fffbeb;">
                 <svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -209,11 +217,11 @@
           <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
             <div class="flex items-start justify-between">
               <div>
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">AI Summaries Generated</p>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide" data-i18n="stat.ai_summaries">AI Summaries Generated</p>
                 <p class="text-3xl font-bold text-gray-900 mt-1.5">892</p>
                 <p class="text-xs text-green-600 font-medium mt-1.5 flex items-center gap-1">
                   <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-                  +34 today
+                  <span data-i18n="stat.today">+34 today</span>
                 </p>
               </div>
               <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:#f5f3ff;">
@@ -226,8 +234,8 @@
         <!-- Recent Patient Activity -->
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-6">
           <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 class="font-semibold text-gray-900">Recent Patient Activity</h2>
-            <button class="text-sm font-medium hover:underline" style="color:#0d9488;" onclick="showScreen('patients')">View all patients →</button>
+            <h2 class="font-semibold text-gray-900" data-i18n="section.recent">Recent Patient Activity</h2>
+            <button class="text-sm font-medium hover:underline" style="color:#0d9488;" onclick="showScreen('patients')" data-i18n="btn.view_all">View all patients →</button>
           </div>
           <table class="w-full">
             <thead>
@@ -307,8 +315,8 @@
         <!-- Data Source Health -->
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
           <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 class="font-semibold text-gray-900">Data Source Health</h2>
-            <button class="text-sm font-medium hover:underline" style="color:#0d9488;" onclick="showScreen('datasources')">Manage sources →</button>
+            <h2 class="font-semibold text-gray-900" data-i18n="section.source_health">Data Source Health</h2>
+            <button class="text-sm font-medium hover:underline" style="color:#0d9488;" onclick="showScreen('datasources')" data-i18n="btn.manage">Manage sources →</button>
           </div>
           <div class="p-4 grid grid-cols-4 gap-3">
             <div class="border border-gray-200 rounded-lg p-4">
@@ -357,8 +365,8 @@
       <div id="screen-patients" data-screen class="hidden p-6 max-w-7xl mx-auto w-full">
         <div class="mb-5 flex items-center justify-between">
           <div>
-            <h1 class="text-xl font-semibold text-gray-900">Patients</h1>
-            <p class="text-sm text-gray-500 mt-0.5">1,284 total patients across all sources</p>
+            <h1 class="text-xl font-semibold text-gray-900" data-i18n="patients.title">Patients</h1>
+            <p class="text-sm text-gray-500 mt-0.5" data-i18n="patients.subtitle">1,284 total patients across all sources</p>
           </div>
           <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm" style="background:#0d9488;">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
@@ -1241,6 +1249,267 @@
           </div>
         </div>
       </div><!-- /screen-datasources -->
+      <!-- ══════════════════════════════════════════
+           SCREEN 6: QUERIES
+      ══════════════════════════════════════════ -->
+      <div id="screen-queries" data-screen class="hidden p-6 max-w-5xl mx-auto w-full">
+        <div class="mb-6 flex items-center justify-between">
+          <div>
+            <h1 class="text-xl font-semibold text-gray-900" data-i18n="queries.title">Queries</h1>
+            <p class="text-sm text-gray-500 mt-0.5" data-i18n="queries.subtitle">Ask clinical questions across any patient's records</p>
+          </div>
+          <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm" style="background:#0d9488;">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            <span data-i18n="btn.new_query">New Query</span>
+          </button>
+        </div>
+
+        <!-- Ask Kora input -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-6">
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Ask Kora</p>
+          <div class="flex gap-3">
+            <div class="flex-1 relative">
+              <input id="query-input" type="text" placeholder="e.g. Is Amina Osei eligible for CDK4/6 re-challenge based on her latest labs?" class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:border-transparent" style="--tw-ring-color:#0d9488;" />
+            </div>
+            <button onclick="simulateQuery()" class="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-white flex-shrink-0" style="background:#0d9488;">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Ask
+            </button>
+          </div>
+          <div class="flex items-center gap-2 mt-3">
+            <p class="text-xs text-gray-400">Search across:</p>
+            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">All patients</span>
+            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">3 EMR sources</span>
+            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">39,547 documents</span>
+          </div>
+        </div>
+
+        <!-- Simulated answer card (hidden by default) -->
+        <div id="query-answer" class="hidden bg-white rounded-xl border shadow-sm mb-6 overflow-hidden" style="border-color:#0d9488;">
+          <div class="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between" style="background:#f0fdfa;">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4" style="color:#0d9488;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+              <span class="text-sm font-semibold" style="color:#0f766e;">Kora Answer</span>
+              <span class="text-xs text-gray-400">· Patient: Amina Osei · Based on 847 documents</span>
+            </div>
+            <span class="status-ready"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>High confidence</span>
+          </div>
+          <div class="px-5 py-4">
+            <p class="text-sm text-gray-700 leading-relaxed mb-3">Based on records from 3 connected sources, <strong>Amina Osei (XC-00421) partially meets eligibility criteria for CDK4/6 inhibitor re-challenge</strong>. She satisfies 3 of 6 protocol requirements: confirmed ER+/PR+ receptor status, documented prior CDK4/6 exposure (palbociclib 6 cycles, 2022), and ECOG PS of 1 (March 2026).</p>
+            <p class="text-sm text-gray-700 leading-relaxed mb-4">Two criteria require clinical attention before proceeding: (1) The most recent CBC is 31 days old — 1 day outside the 30-day window. (2) No hepatic function panel found within 14 days. Patient consent for re-challenge is also not documented in any available source.</p>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="evidence-pill">Pathology Report · Mar 2022</span>
+              <span class="evidence-pill">Pharmacy Record · May 2022</span>
+              <span class="evidence-pill">Clinic Note · Mar 2026</span>
+              <span class="evidence-pill">Lab Result · Feb 2026</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="showScreen('checklist-full')" class="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-lg text-white" style="background:#0d9488;">View Full Eligibility Checklist →</button>
+              <button class="flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">Export PDF</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending queries list -->
+        <h2 class="text-sm font-semibold text-gray-700 mb-3">Recent Queries</h2>
+        <div class="space-y-3">
+
+          <div class="query-card">
+            <div class="flex items-start justify-between gap-4 mb-3">
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-gray-900 mb-0.5">"Is Amina Osei eligible for CDK4/6 inhibitor re-challenge based on her current records?"</p>
+                <div class="flex items-center gap-2 text-xs text-gray-400">
+                  <div class="flex items-center gap-1.5"><div class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:#0d9488;">AO</div><span>Amina Osei · XC-00421</span></div>
+                  <span>·</span><span>June 26, 2026 · 09:14</span><span>·</span><span>847 documents searched</span>
+                </div>
+              </div>
+              <span class="status-ready flex-shrink-0"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Answered</span>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-600 mb-3 border-l-4" style="border-color:#0d9488;">
+              Patient meets 3 of 6 CDK4/6 re-challenge criteria. CBC is 31 days old (borderline). No hepatic panel within 14 days found. Consent not documented. <span class="font-medium" style="color:#0d9488;">View full evaluation →</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="showScreen('checklist-full')" class="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">View Checklist</button>
+              <button class="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">Export PDF</button>
+            </div>
+          </div>
+
+          <div class="query-card">
+            <div class="flex items-start justify-between gap-4 mb-3">
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-gray-900 mb-0.5">"What ART regimen is Fatimata Diallo currently on and when was it last updated?"</p>
+                <div class="flex items-center gap-2 text-xs text-gray-400">
+                  <div class="flex items-center gap-1.5"><div class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:#8b5cf6;">FD</div><span>Fatimata Diallo · XC-00512</span></div>
+                  <span>·</span><span>June 26, 2026 · 08:42</span>
+                </div>
+              </div>
+              <span class="status-syncing flex-shrink-0"><svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Processing</span>
+            </div>
+            <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div class="h-full rounded-full" style="width:68%;background:#0d9488;"></div>
+            </div>
+            <p class="text-xs text-gray-400 mt-1.5">Searching 1 source · 1 of 3 documents reviewed...</p>
+          </div>
+
+          <div class="query-card">
+            <div class="flex items-start justify-between gap-4 mb-3">
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-gray-900 mb-0.5">"Summarize Kwame Mensah's diabetes and hypertension control over the past 12 months"</p>
+                <div class="flex items-center gap-2 text-xs text-gray-400">
+                  <div class="flex items-center gap-1.5"><div class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:#6366f1;">KM</div><span>Kwame Mensah · XC-00389</span></div>
+                  <span>·</span><span>June 25, 2026 · 16:30</span><span>·</span><span>392 documents searched</span>
+                </div>
+              </div>
+              <span class="status-ready flex-shrink-0"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Answered</span>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-600 mb-3 border-l-4" style="border-color:#6366f1;">
+              HbA1c trended from 9.2% (June 2025) to 7.8% (March 2026) — improving control on metformin + sitagliptin. BP readings averaging 138/86 mmHg over 6 encounters; amlodipine dose increased to 10mg in January 2026. Renal function stable (eGFR 67). No hypoglycemic events documented.
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="showScreen('patient-detail')" class="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">View Patient Chart</button>
+              <button class="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">Export PDF</button>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /screen-queries -->
+
+      <!-- ══════════════════════════════════════════
+           SCREEN 7: DOCUMENTS
+      ══════════════════════════════════════════ -->
+      <div id="screen-documents" data-screen class="hidden p-6 max-w-7xl mx-auto w-full">
+        <div class="mb-5 flex items-center justify-between">
+          <div>
+            <h1 class="text-xl font-semibold text-gray-900" data-i18n="docs.title">Documents</h1>
+            <p class="text-sm text-gray-500 mt-0.5" data-i18n="docs.subtitle">Source documents across all connected EMRs</p>
+          </div>
+          <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm" style="background:#0d9488;">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Upload Document
+          </button>
+        </div>
+        <!-- Search + filters -->
+        <div class="flex items-center gap-3 mb-4">
+          <div class="relative flex-1 max-w-lg">
+            <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>
+            <input type="text" placeholder="Search by patient, document title, or content..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 shadow-sm" />
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="chip active" onclick="setChip(this)">All</span>
+            <span class="chip" onclick="setChip(this)">Lab Reports</span>
+            <span class="chip" onclick="setChip(this)">Clinical Notes</span>
+            <span class="chip" onclick="setChip(this)">Imaging</span>
+            <span class="chip" onclick="setChip(this)">Referrals</span>
+            <span class="chip" onclick="setChip(this)">Discharge</span>
+          </div>
+        </div>
+        <!-- Stats bar -->
+        <div class="flex items-center gap-4 mb-5 text-xs text-gray-500">
+          <span><span class="font-semibold text-gray-900">39,547</span> total documents</span>
+          <span class="text-gray-300">·</span>
+          <span><span class="font-semibold text-gray-900">3</span> sources</span>
+          <span class="text-gray-300">·</span>
+          <span>Last indexed: <span class="font-medium text-gray-700">4 min ago</span></span>
+        </div>
+        <!-- Documents table -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-100">
+                <th class="text-left text-xs font-semibold text-gray-500 px-5 py-3 uppercase tracking-wide">Document</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">Patient</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">Type</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">Source</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">Date</th>
+                <th class="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">AI Indexed</th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="doc-row border-b border-gray-50 cursor-pointer" onclick="showScreen('patient-detail')">
+                <td class="px-5 py-3.5"><div><p class="text-sm font-medium text-gray-900">Pathology Report — Left Breast Core Biopsy</p><p class="mono text-xs text-gray-400 mt-0.5">PATH-2022-03142.pdf</p></div></td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:#0d9488;">AO</div><span class="text-sm text-gray-700">Amina Osei</span></div></td>
+                <td class="px-4 py-3.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700">Pathology</span></td>
+                <td class="px-4 py-3.5 text-xs text-gray-500">OpenMRS · Lagos General</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">Mar 14, 2022</td>
+                <td class="px-4 py-3.5"><span class="status-ready text-xs"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Indexed</span></td>
+                <td class="px-4 py-3.5"><button class="text-xs font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">View</button></td>
+              </tr>
+              <tr class="doc-row border-b border-gray-50 cursor-pointer" onclick="showScreen('patient-detail')">
+                <td class="px-5 py-3.5"><div><p class="text-sm font-medium text-gray-900">Oncology Clinic Note — Follow-up Visit</p><p class="mono text-xs text-gray-400 mt-0.5">ONC-NOTE-2026-0318.pdf</p></div></td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:#0d9488;">AO</div><span class="text-sm text-gray-700">Amina Osei</span></div></td>
+                <td class="px-4 py-3.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">Clinical Note</span></td>
+                <td class="px-4 py-3.5 text-xs text-gray-500">OpenMRS · Lagos General</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">Mar 18, 2026</td>
+                <td class="px-4 py-3.5"><span class="status-ready text-xs"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Indexed</span></td>
+                <td class="px-4 py-3.5"><button class="text-xs font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">View</button></td>
+              </tr>
+              <tr class="doc-row border-b border-gray-50 cursor-pointer">
+                <td class="px-5 py-3.5"><div><p class="text-sm font-medium text-gray-900">Complete Blood Count — Routine Labs</p><p class="mono text-xs text-gray-400 mt-0.5">LAB-CBC-2026-0224.pdf</p></div></td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:#0d9488;">AO</div><span class="text-sm text-gray-700">Amina Osei</span></div></td>
+                <td class="px-4 py-3.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">Lab Report</span></td>
+                <td class="px-4 py-3.5 text-xs text-gray-500">OpenMRS · Lagos General</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">Feb 24, 2026</td>
+                <td class="px-4 py-3.5"><span class="status-ready text-xs"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Indexed</span></td>
+                <td class="px-4 py-3.5"><button class="text-xs font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">View</button></td>
+              </tr>
+              <tr class="doc-row border-b border-gray-50 cursor-pointer">
+                <td class="px-5 py-3.5"><div><p class="text-sm font-medium text-gray-900">CT Chest/Abdomen/Pelvis with contrast</p><p class="mono text-xs text-gray-400 mt-0.5">IMG-CT-2022-1214.pdf</p></div></td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:#0d9488;">AO</div><span class="text-sm text-gray-700">Amina Osei</span></div></td>
+                <td class="px-4 py-3.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700">Imaging</span></td>
+                <td class="px-4 py-3.5 text-xs text-gray-500">OpenMRS · Lagos General</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">Dec 14, 2022</td>
+                <td class="px-4 py-3.5"><span class="status-ready text-xs"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Indexed</span></td>
+                <td class="px-4 py-3.5"><button class="text-xs font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">View</button></td>
+              </tr>
+              <tr class="doc-row border-b border-gray-50 cursor-pointer">
+                <td class="px-5 py-3.5"><div><p class="text-sm font-medium text-gray-900">ART Adherence Counselling Note</p><p class="mono text-xs text-gray-400 mt-0.5">HIV-NOTE-2026-0118.pdf</p></div></td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:#8b5cf6;">FD</div><span class="text-sm text-gray-700">Fatimata Diallo</span></div></td>
+                <td class="px-4 py-3.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">Clinical Note</span></td>
+                <td class="px-4 py-3.5 text-xs text-gray-500">KenyaEMR · Referral</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">Jan 18, 2026</td>
+                <td class="px-4 py-3.5"><span class="status-ready text-xs"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Indexed</span></td>
+                <td class="px-4 py-3.5"><button class="text-xs font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">View</button></td>
+              </tr>
+              <tr class="doc-row border-b border-gray-50 cursor-pointer">
+                <td class="px-5 py-3.5"><div><p class="text-sm font-medium text-gray-900">TB Treatment Initiation Record — 2HRZE/4HR</p><p class="mono text-xs text-gray-400 mt-0.5">TB-TX-2025-0902.pdf</p></div></td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:#0891b2;">CN</div><span class="text-sm text-gray-700">Chukwuemeka Nwosu</span></div></td>
+                <td class="px-4 py-3.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700">Treatment Record</span></td>
+                <td class="px-4 py-3.5 text-xs text-gray-500">OpenMRS · Lagos General</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">Sep 2, 2025</td>
+                <td class="px-4 py-3.5"><span class="status-syncing text-xs"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Indexing</span></td>
+                <td class="px-4 py-3.5"><button class="text-xs font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">View</button></td>
+              </tr>
+              <tr class="doc-row border-b border-gray-50 cursor-pointer">
+                <td class="px-5 py-3.5"><div><p class="text-sm font-medium text-gray-900">HbA1c + Metabolic Panel</p><p class="mono text-xs text-gray-400 mt-0.5">LAB-META-2026-0315.pdf</p></div></td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:#6366f1;">KM</div><span class="text-sm text-gray-700">Kwame Mensah</span></div></td>
+                <td class="px-4 py-3.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">Lab Report</span></td>
+                <td class="px-4 py-3.5 text-xs text-gray-500">OpenMRS · Lagos General</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">Mar 15, 2026</td>
+                <td class="px-4 py-3.5"><span class="status-ready text-xs"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Indexed</span></td>
+                <td class="px-4 py-3.5"><button class="text-xs font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">View</button></td>
+              </tr>
+              <tr class="doc-row cursor-pointer">
+                <td class="px-5 py-3.5"><div><p class="text-sm font-medium text-gray-900">Referral Letter — Oncology Specialist</p><p class="mono text-xs text-gray-400 mt-0.5">REF-ONC-2024-0806.pdf</p></div></td>
+                <td class="px-4 py-3.5"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:#0d9488;">AO</div><span class="text-sm text-gray-700">Amina Osei</span></div></td>
+                <td class="px-4 py-3.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700">Referral Letter</span></td>
+                <td class="px-4 py-3.5 text-xs text-gray-500">KenyaEMR · Referral</td>
+                <td class="px-4 py-3.5 text-sm text-gray-600">Aug 6, 2024</td>
+                <td class="px-4 py-3.5"><span class="status-ready text-xs"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Indexed</span></td>
+                <td class="px-4 py-3.5"><button class="text-xs font-medium px-3 py-1 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="px-5 py-3.5 border-t border-gray-100 flex items-center justify-between">
+            <p class="text-sm text-gray-500">Showing <span class="font-medium text-gray-700">1–8</span> of <span class="font-medium text-gray-700">39,547</span> documents</p>
+            <div class="flex items-center gap-2">
+              <button class="px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg text-gray-400 cursor-not-allowed">← Prev</button>
+              <button class="px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">Next →</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /screen-documents -->
+
       <div id="screen-placeholder" data-screen class="hidden flex items-center justify-center min-h-full">
         <div class="text-center py-24">
           <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4" style="background:#f0fdfa;">
@@ -1311,13 +1580,15 @@
         <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
       </div>
       <h2 class="text-xl font-bold text-gray-900 mb-1">Kora Product Demo</h2>
-      <p class="text-sm text-gray-500 mb-6">A 90-second walkthrough of how Kora turns fragmented African EMR data into clinical intelligence your care team can act on.</p>
-      <div class="text-left space-y-2.5 mb-7">
+      <p class="text-sm text-gray-500 mb-6">A 2-minute walkthrough of how Kora turns fragmented African EMR data into clinical intelligence your care team can act on.</p>
+      <div class="text-left space-y-2 mb-7">
         <div class="flex items-center gap-3 text-sm text-gray-700"><span class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#0d9488;">1</span>Live network dashboard</div>
         <div class="flex items-center gap-3 text-sm text-gray-700"><span class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#0d9488;">2</span>Unified patient registry</div>
         <div class="flex items-center gap-3 text-sm text-gray-700"><span class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#0d9488;">3</span>AI-enriched patient chart</div>
         <div class="flex items-center gap-3 text-sm text-gray-700"><span class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#0d9488;">4</span>Automated protocol checklist</div>
-        <div class="flex items-center gap-3 text-sm text-gray-700"><span class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#0d9488;">5</span>Multi-EMR integration panel</div>
+        <div class="flex items-center gap-3 text-sm text-gray-700"><span class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#0d9488;">5</span>AI clinical query engine</div>
+        <div class="flex items-center gap-3 text-sm text-gray-700"><span class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#0d9488;">6</span>Document repository (39K+ docs)</div>
+        <div class="flex items-center gap-3 text-sm text-gray-700"><span class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#0d9488;">7</span>Multi-EMR integration panel</div>
       </div>
       <button onclick="demoRun()" class="w-full py-3 text-white font-semibold rounded-xl text-sm" style="background:linear-gradient(135deg,#0d9488,#0891b2);">
         ▶ Start Demo Tour
@@ -1385,6 +1656,8 @@ const breadcrumbLabels = {
   'patient-detail': ['Patients', 'Amina Osei'],
   'checklist-full': ['Patients', 'Checklist Evaluation'],
   datasources: ['Data Sources', null],
+  queries: ['Queries', null],
+  documents: ['Documents', null],
   placeholder: ['Coming Soon', null],
 };
 const navIds = {
@@ -1393,8 +1666,85 @@ const navIds = {
   'patient-detail': 'nav-patients',
   'checklist-full': 'nav-checklists',
   datasources: 'nav-datasources',
+  queries: 'nav-queries',
+  documents: 'nav-documents',
   placeholder: null,
 };
+
+// ── i18n ──
+let currentLang = 'en';
+const i18n = {
+  en: {
+    'nav.dashboard':'Dashboard','nav.patients':'Patients','nav.queries':'Queries','nav.documents':'Documents','nav.checklists':'Checklists','nav.datasources':'Data Sources','nav.settings':'Settings',
+    'dash.title':'Dashboard','dash.subtitle':'Thursday, June 26, 2026 — Lagos General Network',
+    'stat.total_patients':'Total Patients','stat.synced_today':'Records Synced Today','stat.pending_queries':'Pending Queries','stat.ai_summaries':'AI Summaries Generated',
+    'stat.week':'+12 this week','stat.last_sync':'Last sync: 4 min ago','stat.requires':'Requires attention','stat.today':'+34 today',
+    'section.recent':'Recent Patient Activity','section.source_health':'Data Source Health',
+    'btn.view_all':'View all patients →','btn.manage':'Manage sources →',
+    'patients.title':'Patients','patients.subtitle':'1,284 total patients across all sources',
+    'queries.title':'Queries','queries.subtitle':"Ask clinical questions across any patient's records",
+    'btn.new_query':'New Query','docs.title':'Documents','docs.subtitle':'Source documents across all connected EMRs',
+  },
+  yo: {
+    'nav.dashboard':'Pẹpẹ Iṣakoso','nav.patients':'Awọn Alaisan','nav.queries':'Awọn Ibeere','nav.documents':'Awọn Iwe','nav.checklists':'Akojọ Ayẹwo','nav.datasources':'Awọn Orisun Alaye','nav.settings':'Eto',
+    'dash.title':'Pẹpẹ Iṣakoso','dash.subtitle':'Ọjọbọ, Oṣu Kẹfa 26, 2026 — Nẹtiwọọki Gbogbogbo Eko',
+    'stat.total_patients':'Apapọ Awọn Alaisan','stat.synced_today':'Awọn Igbasilẹ ti A Fisinpọ Loni','stat.pending_queries':'Awọn Ibeere ti o Duro','stat.ai_summaries':'Awọn Akopọ AI ti A Ṣẹda',
+    'stat.week':'+12 ni ọsẹ yii','stat.last_sync':'Isinpọ kẹhin: iṣẹju 4 sẹhin','stat.requires':'Nilo akiyesi','stat.today':'+34 loni',
+    'section.recent':'Iṣẹ Alaisan Aipẹ','section.source_health':'Ilera Orisun Alaye',
+    'btn.view_all':'Wo gbogbo awọn alaisan →','btn.manage':'Ṣakoso awọn orisun →',
+    'patients.title':'Awọn Alaisan','patients.subtitle':'Alaisan 1,284 lapapọ lati gbogbo awọn orisun',
+    'queries.title':'Awọn Ibeere','queries.subtitle':'Beere awọn ibeere ile-iwosan lori igbasilẹ alaisan eyikeyi',
+    'btn.new_query':'Ibeere Tuntun','docs.title':'Awọn Iwe','docs.subtitle':'Awọn iwe orisun kọja gbogbo EMR ti a sopọ',
+  },
+  sw: {
+    'nav.dashboard':'Dashibodi','nav.patients':'Wagonjwa','nav.queries':'Maswali','nav.documents':'Nyaraka','nav.checklists':'Orodha ya Ukaguzi','nav.datasources':'Vyanzo vya Data','nav.settings':'Mipangilio',
+    'dash.title':'Dashibodi','dash.subtitle':'Alhamisi, Juni 26, 2026 — Mtandao wa Lagos General',
+    'stat.total_patients':'Jumla ya Wagonjwa','stat.synced_today':'Rekodi Zilizosawazishwa Leo','stat.pending_queries':'Maswali Yanayosubiri','stat.ai_summaries':'Muhtasari wa AI Uliozalishwa',
+    'stat.week':'+12 wiki hii','stat.last_sync':'Usawazishaji wa mwisho: dak 4 iliyopita','stat.requires':'Inahitaji umakini','stat.today':'+34 leo',
+    'section.recent':'Shughuli za Hivi Karibuni za Wagonjwa','section.source_health':'Hali ya Vyanzo vya Data',
+    'btn.view_all':'Angalia wagonjwa wote →','btn.manage':'Simamia vyanzo →',
+    'patients.title':'Wagonjwa','patients.subtitle':'Wagonjwa 1,284 kwa jumla kutoka vyanzo vyote',
+    'queries.title':'Maswali','queries.subtitle':'Uliza maswali ya kimatibabu kwenye rekodi za mgonjwa yeyote',
+    'btn.new_query':'Swali Jipya','docs.title':'Nyaraka','docs.subtitle':'Nyaraka chanzo kutoka EMR zote zilizounganishwa',
+  },
+  ha: {
+    'nav.dashboard':'Allon Kula','nav.patients':'Marasa','nav.queries':'Tambayoyi','nav.documents':'Takardu','nav.checklists':'Jerin Dubawa','nav.datasources':'Hanyoyin Bayanan','nav.settings':'Saiti',
+    'dash.title':'Allon Kula','dash.subtitle':'Alhamis, Yuni 26, 2026 — Cibiyar Kula ta Lagos',
+    'stat.total_patients':'Jimilar Marasa','stat.synced_today':'Bayanan da aka Haɗa Yau','stat.pending_queries':'Tambayoyin da ke Jira','stat.ai_summaries':'Taƙaitattun AI da aka Samar',
+    'stat.week':'+12 wannan mako','stat.last_sync':'Haɗawa ta ƙarshe: minti 4 da suka wuce','stat.requires':'Yana buƙatar kulawa','stat.today':'+34 yau',
+    'section.recent':'Ayyukan Marasa na Kwanan nan','section.source_health':'Lafiyar Hanyoyin Bayanai',
+    'btn.view_all':'Duba duk marasan →','btn.manage':'Sarrafa hanyoyin →',
+    'patients.title':'Marasa','patients.subtitle':'Marasa 1,284 gaba ɗaya daga duk hanyoyin',
+    'queries.title':'Tambayoyi','queries.subtitle':'Yi tambayoyin asibiti akan bayanan kowane maras',
+    'btn.new_query':'Sabuwar Tambaya','docs.title':'Takardu','docs.subtitle':'Takardu daga duk EMR da aka haɗa',
+  },
+};
+
+function setLanguage(lang) {
+  if (!i18n[lang]) return;
+  currentLang = lang;
+  const t = i18n[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key]) el.textContent = t[key];
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('lang-active', btn.getAttribute('data-lang') === lang);
+  });
+}
+
+// ── Simulate AI Query ──
+function simulateQuery() {
+  const input = document.getElementById('query-input');
+  const answer = document.getElementById('query-answer');
+  if (!input.value.trim()) {
+    input.placeholder = 'Please enter a question first...';
+    input.focus();
+    return;
+  }
+  answer.classList.remove('hidden');
+  answer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
 function showScreen(id) {
   document.querySelectorAll('[data-screen]').forEach(el => el.classList.add('hidden'));
@@ -1442,31 +1792,43 @@ function closeModal() { document.getElementById('modal-integration').classList.a
 const DEMO_STEPS = [
   {
     screen: 'dashboard',
-    label: 'Step 1 of 5 — Live Dashboard',
+    label: 'Step 1 of 7 — Live Dashboard',
     narrative: 'Kora gives every care team a live pulse of their network — active patients, synced records, pending queries, and AI summaries, all in one place.',
     duration: 5500,
   },
   {
     screen: 'patients',
-    label: 'Step 2 of 5 — Patient Registry',
+    label: 'Step 2 of 7 — Patient Registry',
     narrative: 'The Patient Registry surfaces all 1,284 patients across every connected EMR — searchable, filterable, and sortable by condition, sync status, or complexity.',
     duration: 5500,
   },
   {
     screen: 'patient-detail',
-    label: 'Step 3 of 5 — Unified Patient Chart',
+    label: 'Step 3 of 7 — Unified Patient Chart',
     narrative: "One click opens Amina Osei's chart — records pulled from 3 separate EMRs and normalized into a single view. Kora's AI reads 847 documents so the clinician doesn't have to.",
     duration: 6500,
   },
   {
     screen: 'checklist-full',
-    label: 'Step 4 of 5 — Protocol Eligibility Checklist',
+    label: 'Step 4 of 7 — Protocol Eligibility Checklist',
     narrative: 'Kora auto-evaluates protocol eligibility against live record data. Each criterion shows its status, the AI reasoning, and the exact source document — with clinician override.',
     duration: 6500,
   },
   {
+    screen: 'queries',
+    label: 'Step 5 of 7 — Clinical Query Engine',
+    narrative: 'Clinicians ask plain-language questions across any patient\'s full record history. Kora answers in seconds with evidence citations — no searching, no manual chart review.',
+    duration: 6000,
+  },
+  {
+    screen: 'documents',
+    label: 'Step 6 of 7 — Document Repository',
+    narrative: 'Every source document — labs, notes, imaging, referrals — is indexed and searchable across all EMRs. Kora reads and cites them; the clinician stays in the loop.',
+    duration: 5500,
+  },
+  {
     screen: 'datasources',
-    label: 'Step 5 of 5 — Multi-EMR Integration',
+    label: 'Step 7 of 7 — Multi-EMR Integration',
     narrative: 'Kora connects to any African EMR — OpenMRS, KenyaEMR, DHIS2, Bahmni, or a custom FHIR endpoint. Setup takes minutes. Regional health exchanges are supported out of the box.',
     duration: 5500,
   },
