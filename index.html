@@ -1526,48 +1526,54 @@
 </div>
 
 <!-- DEMO BAR -->
-<div id="demo-bar" class="hidden fixed bottom-0 left-0 right-0 z-50 shadow-2xl" style="background:#0f172a;">
-  <!-- Auto-advance timer strip -->
-  <div id="demo-timer-strip" class="h-0.5 w-0 transition-none" style="background:#0d9488;"></div>
-  <div class="px-6 py-4">
-    <div class="max-w-5xl mx-auto flex items-center gap-5">
-      <!-- Kora badge -->
-      <div class="flex items-center gap-2 flex-shrink-0">
-        <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:#0d9488;">
-          <svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+<!-- DEMO POPUP OVERLAY — floating card, bottom-right -->
+<div id="demo-bar" class="hidden fixed bottom-6 right-6 z-50 rounded-2xl shadow-2xl overflow-hidden" style="background:#0f172a;width:380px;">
+  <!-- Progress strip across the top of the card -->
+  <div class="h-1 w-full" style="background:#1e293b;">
+    <div id="demo-timer-strip" class="h-1 w-0 transition-none" style="background:#0d9488;"></div>
+  </div>
+  <div class="p-5">
+    <!-- Header row: Kora badge left, step count right -->
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#0d9488,#0891b2);">
+          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
         </div>
         <div>
-          <p class="text-xs font-bold text-white leading-none">Kora</p>
-          <p class="text-xs text-gray-500 leading-none">Demo</p>
+          <p class="text-sm font-bold text-white leading-none">Kora</p>
+          <p class="text-xs leading-none mt-0.5" style="color:#6b7280;">Investor Demo</p>
         </div>
       </div>
-      <!-- Divider -->
-      <div class="w-px h-8 bg-gray-700 flex-shrink-0"></div>
-      <!-- Step pills -->
-      <div id="demo-step-pills" class="flex items-center gap-1.5 flex-shrink-0">
-        <!-- filled by JS -->
-      </div>
-      <!-- Divider -->
-      <div class="w-px h-8 bg-gray-700 flex-shrink-0"></div>
-      <!-- Narrative -->
-      <div class="flex-1 min-w-0">
-        <p class="text-xs font-semibold uppercase tracking-widest mb-0.5" style="color:#0d9488;" id="demo-step-label">Step 1</p>
-        <p id="demo-narrative" class="text-sm text-white font-medium leading-snug truncate">Loading...</p>
-      </div>
-      <!-- Controls -->
-      <div class="flex items-center gap-2 flex-shrink-0">
-        <button id="demo-pause-btn" onclick="demoTogglePause()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border text-gray-300 hover:text-white hover:border-gray-500 transition-colors" style="border-color:#374151;">
-          <svg id="demo-pause-icon" class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-          Pause
-        </button>
-        <button onclick="demoNext()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-white hover:opacity-80 transition-opacity" style="background:#1e293b;border:1px solid #374151;">
-          Skip →
-        </button>
-        <button onclick="demoEnd()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-white hover:opacity-80" style="background:#ef4444;">
-          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-          End
-        </button>
-      </div>
+      <span id="demo-step-label" class="text-xs font-semibold px-2.5 py-1 rounded-full" style="background:rgba(13,148,136,0.15);color:#0d9488;">Step 1 of 7</span>
+    </div>
+
+    <!-- Divider -->
+    <div class="mb-3" style="border-top:1px solid #1e293b;"></div>
+
+    <!-- Step title -->
+    <p id="demo-step-title" class="text-xs font-semibold uppercase tracking-widest mb-2" style="color:#0d9488;">Live Dashboard</p>
+
+    <!-- Full narrative — no truncation, properly wrapped -->
+    <p id="demo-narrative" class="text-sm font-medium leading-relaxed mb-4" style="color:#e2e8f0;">Loading...</p>
+
+    <!-- Step progress dots -->
+    <div id="demo-step-pills" class="flex items-center gap-2 mb-4">
+      <!-- filled by JS -->
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center gap-2">
+      <button id="demo-pause-btn" onclick="demoTogglePause()" class="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg transition-colors flex-1 justify-center" style="background:#1e293b;color:#cbd5e1;border:1px solid #334155;">
+        <svg id="demo-pause-icon" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+        Pause
+      </button>
+      <button onclick="demoNext()" class="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg transition-opacity flex-1 justify-center" style="background:#0d9488;color:#fff;">
+        Next
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </button>
+      <button onclick="demoEnd()" class="flex items-center justify-center w-9 h-9 rounded-lg transition-opacity" style="background:#1e293b;color:#6b7280;border:1px solid #334155;" title="End demo">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
     </div>
   </div>
 </div>
@@ -1804,45 +1810,52 @@ function closeModal() { document.getElementById('modal-integration').classList.a
 const DEMO_STEPS = [
   {
     screen: 'dashboard',
-    label: 'Step 1 of 7 — Live Dashboard',
+    label: 'Step 1 of 7',
+    title: 'Live Network Dashboard',
     narrative: 'Kora gives every care team a live pulse of their network — active patients, synced records, pending queries, and AI summaries, all in one place.',
-    duration: 5500,
+    duration: 6500,
   },
   {
     screen: 'patients',
-    label: 'Step 2 of 7 — Patient Registry',
+    label: 'Step 2 of 7',
+    title: 'Patient Registry',
     narrative: 'The Patient Registry surfaces all 1,284 patients across every connected EMR — searchable, filterable, and sortable by condition, sync status, or complexity.',
-    duration: 5500,
+    duration: 6500,
   },
   {
     screen: 'patient-detail',
-    label: 'Step 3 of 7 — Unified Patient Chart',
+    label: 'Step 3 of 7',
+    title: 'Unified Patient Chart',
     narrative: "One click opens Amina Osei's chart — records pulled from 3 separate EMRs and normalized into a single view. Kora's AI reads 847 documents so the clinician doesn't have to.",
-    duration: 6500,
+    duration: 7000,
   },
   {
     screen: 'checklist-full',
-    label: 'Step 4 of 7 — Protocol Eligibility Checklist',
+    label: 'Step 4 of 7',
+    title: 'Protocol Eligibility Checklist',
     narrative: 'Kora auto-evaluates protocol eligibility against live record data. Each criterion shows its status, the AI reasoning, and the exact source document — with clinician override.',
-    duration: 6500,
+    duration: 7000,
   },
   {
     screen: 'queries',
-    label: 'Step 5 of 7 — Clinical Query Engine',
+    label: 'Step 5 of 7',
+    title: 'Clinical Query Engine',
     narrative: 'Clinicians ask plain-language questions across any patient\'s full record history. Kora answers in seconds with evidence citations — no searching, no manual chart review.',
-    duration: 6000,
+    duration: 7000,
   },
   {
     screen: 'documents',
-    label: 'Step 6 of 7 — Document Repository',
+    label: 'Step 6 of 7',
+    title: 'Document Repository',
     narrative: 'Every source document — labs, notes, imaging, referrals — is indexed and searchable across all EMRs. Kora reads and cites them; the clinician stays in the loop.',
-    duration: 5500,
+    duration: 6500,
   },
   {
     screen: 'datasources',
-    label: 'Step 7 of 7 — Multi-EMR Integration',
+    label: 'Step 7 of 7',
+    title: 'Multi-EMR Integration',
     narrative: 'Kora connects to any African EMR — OpenMRS, KenyaEMR, DHIS2, Bahmni, or a custom FHIR endpoint. Setup takes minutes. Regional health exchanges are supported out of the box.',
-    duration: 5500,
+    duration: 6500,
   },
 ];
 
@@ -1873,12 +1886,13 @@ function demoGoToStep(idx) {
 
   showScreen(step.screen);
   document.getElementById('demo-step-label').textContent = step.label;
+  document.getElementById('demo-step-title').textContent = step.title;
   document.getElementById('demo-narrative').textContent = step.narrative;
 
   // Build step pills
   const pillsEl = document.getElementById('demo-step-pills');
-  pillsEl.innerHTML = DEMO_STEPS.map((_, i) =>
-    `<div class="w-2 h-2 rounded-full transition-all ${i === idx ? 'w-4' : ''}" style="background:${i <= idx ? '#0d9488' : '#374151'};"></div>`
+  pillsEl.innerHTML = DEMO_STEPS.map((s, i) =>
+    `<div title="${s.title}" class="h-1.5 rounded-full transition-all cursor-pointer" onclick="demoGoToStep(${i})" style="width:${i === idx ? '24px' : '8px'};background:${i <= idx ? '#0d9488' : '#334155'};"></div>`
   ).join('');
 
   // Start timer
@@ -1913,11 +1927,11 @@ function demoTogglePause() {
     demoTimerRemaining -= (performance.now() - demoTimerStart);
     cancelAnimationFrame(demoAnimFrame);
     clearTimeout(demoTimer);
-    btn.innerHTML = '<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg> Resume';
+    btn.innerHTML = '<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg> Resume';
   } else {
     demoPaused = false;
     demoTimerStart = performance.now() - (demoTimerDuration - demoTimerRemaining);
-    btn.innerHTML = '<svg id="demo-pause-icon" class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg> Pause';
+    btn.innerHTML = '<svg id="demo-pause-icon" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg> Pause';
     demoTickTimer();
   }
 }
